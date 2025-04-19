@@ -8,23 +8,58 @@ alwaysApply: false
 将使用Java设计一个模块化解决方案，该解决方案应有优秀的代码可读性以及可维护性。此解决方案包含以下组件：
 
 ## 核心架构
-该项目的核心架构和目录结构如下：
+该项目的核心结构如下：
 
-com.clocliketool
-├── Main.java                  // 入口点和CLI处理
-├── counter
-│   ├── LineCounter.java       // 抽象基础计数器类
-│   ├── CppLineCounter.java    // C/C++实现
-│   ├── RubyLineCounter.java   // Ruby实现（可选）
-│   └── LineCountResult.java   // 结果容器
-├── parser
-│   ├── FileParser.java        // 解析文件的接口
-│   ├── CppFileParser.java     // C/C++特定解析器
-│   └── RubyFileParser.java    // Ruby特定解析器（可选）
-└── util
-    ├── DirectoryScanner.java  // 目录遍历
-    ├── FileUtils.java         // 文件处理工具
-    └── ResultFormatter.java   // 格式化显示结果
+cloc-like-tool/                      # 项目根目录
+├── src/
+│   ├── main/
+│   │   ├── java/               # Java 源代码
+│   │   │   └── com/
+│   │   │       └── clocliketool/
+│   │   │           ├── Main.java                  # 入口点和CLI处理
+│   │   │           ├── counter/
+│   │   │           │   ├── LineCounter.java       # 抽象基础计数器类
+│   │   │           │   ├── CppLineCounter.java    # C/C++实现
+│   │   │           │   ├── RubyLineCounter.java   # Ruby实现
+│   │   │           │   └── LineCountResult.java   # 结果容器
+│   │   │           ├── parser/
+│   │   │           │   ├── FileParser.java        # 解析文件的接口
+│   │   │           │   ├── CppFileParser.java     # C/C++特定解析器
+│   │   │           │   └── RubyFileParser.java    # Ruby特定解析器
+│   │   │           ├── exception/         # 异常类目录
+│   │   │           │   ├── InvalidInputException.java   
+│   │   │           │   └── ...                    # 其他的异常
+│   │   │           └── util/                      # 工具类
+│   │   │               ├── DirectoryScanner.java  # 目录遍历
+│   │   │               ├── FileUtils.java         # 文件处理工具
+│   │   │               └── ResultFormatter.java   # 格式化显示结果
+│   │   └── resources/         # 资源文件，如配置文件
+│   └── test/
+│       ├── java/              # 测试代码
+│       │   └── com/
+│       │       └── clocliketool/
+│       │           ├── MainTest.java
+│       │           ├── counter/
+│       │           │   ├── CppLineCounterTest.java
+│       │           │   ├── RubyLineCounterTest.java    
+│       │           │   └── LineCountResultTest.java
+│       │           ├── parser/
+│       │           │   ├── CppFileParserTest.java
+│       │           │   └── RubyFileParserTest.java     
+│       │           └── util/
+│       │               ├── DirectoryScannerTest.java
+│       │               ├── FileUtilsTest.java
+│       │               └── ResultFormatterTest.java
+│       └── resources/         # 测试资源
+│           ├── testdata/
+│           │   ├── cpp/       # C/C++测试文件
+│           │   └── ruby/      # Ruby测试文件
+├── target/                    # 编译后的输出(自动生成，不需要手动创建)
+├── pom.xml                    # Maven项目配置文件
+├── README.md                  # 项目说明文档
+├── LICENSE                    # 许可证文件(可选)
+└── .gitignore                 # Git忽略文件配置
+
 
 ## 程序设计模式
 - 策略模式：不同语言解析器实现共同接口
