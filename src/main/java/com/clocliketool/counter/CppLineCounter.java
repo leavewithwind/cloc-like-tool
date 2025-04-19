@@ -13,7 +13,7 @@ import java.io.IOException;
  */
 public class CppLineCounter extends LineCounter {
     
-    private static final String[] SUPPORTED_EXTENSIONS = {"c", "cpp", "cc", "h", "hpp"};
+    private static final String[] SUPPORTED_EXTENSIONS = {"c", "cpp", "cc"};
     
     @Override
     public LineCountResult countLines(File file) throws IOException {

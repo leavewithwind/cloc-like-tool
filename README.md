@@ -28,27 +28,33 @@ cloc-like-tool/
 │   │   ├── java/
 │   │   │   └── com/
 │   │   │       └── clocliketool/
-│   │   │           ├── Main.java                   # 应用程序入口
-│   │   │           ├── model/                      # 模型类
-│   │   │           │   └── LineCountResult.java    # 计数结果模型
-│   │   │           ├── counter/                    # 计数器模块
-│   │   │           │   ├── LineCounter.java        # 抽象基础计数器类
-│   │   │           │   ├── CppLineCounter.java     # C/C++实现
-│   │   │           │   ├── RubyLineCounter.java    # Ruby实现
-│   │   │           │   └── LineCounterFactory.java # 计数器工厂
-│   │   │           ├── exception/                  # 异常处理模块
-│   │   │           └── util/                       # 工具类模块
-│   │   │               ├── DirectoryScanner.java   # 目录扫描器
-│   │   │               └── ResultFormatter.java    # 结果格式化工具
+│   │   │           ├── Main.java                      # 程序入口点
+│   │   │           ├── ApplicationRunner.java         # 应用程序执行器
+│   │   │           ├── model/                         # 模型类
+│   │   │           │   └── LineCountResult.java       # 计数结果模型
+│   │   │           ├── counter/                       # 计数器模块
+│   │   │           │   ├── LineCounter.java           # 抽象基础计数器类
+│   │   │           │   ├── CppLineCounter.java        # C/C++实现
+│   │   │           │   ├── RubyLineCounter.java       # Ruby实现
+│   │   │           │   └── LineCounterFactory.java    # 计数器工厂
+│   │   │           ├── analyzer/                      # 分析器模块
+│   │   │           │   ├── FileAnalyzer.java          # 文件分析器
+│   │   │           │   └── LanguageMapper.java        # 语言映射器
+│   │   │           ├── cli/                           # 命令行处理模块
+│   │   │           │   └── CommandLineProcessor.java  # 命令行处理器
+│   │   │           ├── exception/                     # 异常处理模块
+│   │   │           └── util/                          # 工具类模块
+│   │   │               ├── DirectoryScanner.java      # 目录扫描器
+│   │   │               └── ResultFormatter.java       # 结果格式化工具
 │   └── test/
-│       ├── java/                                   # 测试代码目录
-│       └── resources/                              # 测试资源目录
-│           └── testdata/                           # 测试数据文件
-│               ├── cpp/                            # C/C++测试文件
-│               └── ruby/                           # Ruby测试文件
-├── target/                                         # 编译输出目录（自动生成）
-├── pom.xml                                         # Maven配置文件
-└── README.md                                       # 项目说明文档
+│       ├── java/                                     # 测试代码目录
+│       └── resources/                                # 测试资源目录
+│           └── testdata/                             # 测试数据文件
+│               ├── cpp/                              # C/C++测试文件
+│               └── ruby/                             # Ruby测试文件
+├── target/                                           # 编译输出目录（自动生成）
+├── pom.xml                                           # Maven配置文件
+└── README.md                                         # 项目说明文档
 ```
 
 ## 设计原则
@@ -61,6 +67,18 @@ cloc-like-tool/
 4. **接口隔离原则**：通过适当粒度的接口设计，确保依赖最小化
 5. **最少知识原则**：各模块之间通过最少的接口通信
 6. **关注点分离**：将数据存储、业务逻辑和UI展示分离
+
+## 主要类的职责
+
+1. **Main** - 应用程序入口点
+2. **ApplicationRunner** - 控制程序整体流程
+3. **CommandLineProcessor** - 处理命令行参数
+4. **LineCounter** - 抽象类，定义计数行为
+5. **LineCounterFactory** - 创建适当的计数器实例
+6. **FileAnalyzer** - 分析文件和目录
+7. **LanguageMapper** - 将文件扩展名映射到编程语言
+8. **DirectoryScanner** - 遍历目录
+9. **ResultFormatter** - 格式化输出结果
 
 ## 构建项目
 
@@ -124,7 +142,7 @@ Files     Language     Lines     Code          Comments     Blanks
 
 1. 创建一个继承`LineCounter`的新计数器类
 2. 在`LineCounterFactory`中注册新的计数器
-3. 更新`Main.getLanguageByExtension()`方法以添加新语言的映射
+3. 在`LanguageMapper`中添加新的文件扩展名到语言的映射
 
 ## 许可证
 
