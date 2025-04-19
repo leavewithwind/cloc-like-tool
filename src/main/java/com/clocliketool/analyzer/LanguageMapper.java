@@ -14,10 +14,8 @@ public class LanguageMapper {
     static {
         // C/C++
         extensionLanguageMap.put("c", "C");
-        extensionLanguageMap.put("h", "C");
         extensionLanguageMap.put("cpp", "C++");
         extensionLanguageMap.put("cc", "C++");
-        extensionLanguageMap.put("hpp", "C++");
         
         // Ruby
         extensionLanguageMap.put("rb", "Ruby");

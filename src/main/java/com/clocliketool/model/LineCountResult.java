@@ -31,6 +31,16 @@ public class LineCountResult {
     public void addCommentLine() {
         commentLines++;
     }
+    
+    /**
+     * 减少注释行计数
+     * 用于当一行被重新归类时（从注释行变为代码行）
+     */
+    public void decrementCommentLine() {
+        if (commentLines > 0) {
+            commentLines--;
+        }
+    }
 
     public void addBlankLine() {
         blankLines++;
