@@ -1,0 +1,10 @@
+---
+description: 项目所使用的技术栈
+globs: 
+alwaysApply: false
+---
+
+# 项目所使用的技术栈
+
+- 使用Java作为编程语言
+- 使用Java 8 (Java 1.8)版本
