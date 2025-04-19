@@ -10,15 +10,29 @@ import java.util.*;
 
 /**
  * 文件分析器类，负责文件分析和统计
+ * 修改为只处理指定语言的文件
  */
 public class FileAnalyzer {
     
-    private final List<LineCounter> counters;
-    private final Map<String, LineCountResult> languageResults = new HashMap<>();
+    private final LineCounter counter; // 改为单个计数器
+    private LineCountResult result = new LineCountResult(); // 直接使用一个结果对象
     private int totalFiles = 0;
+    private String languageName; // 存储语言名称
     
     public FileAnalyzer(List<LineCounter> counters) {
-        this.counters = counters;
+        // 只使用列表中的第一个计数器
+        if (counters != null && !counters.isEmpty()) {
+            this.counter = counters.get(0);
+            // 获取语言名称
+            String[] extensions = this.counter.getSupportedExtensions();
+            if (extensions.length > 0) {
+                this.languageName = LanguageMapper.getLanguageByExtension(extensions[0]);
+            } else {
+                this.languageName = "Unknown";
+            }
+        } else {
+            throw new IllegalArgumentException("至少需要提供一个计数器");
+        }
     }
     
     /**
@@ -54,25 +68,14 @@ public class FileAnalyzer {
      * 处理单个文件
      */
     private void processFile(File file) {
-        for (LineCounter counter : counters) {
-            if (counter.supportsFile(file)) {
-                try {
-                    LineCountResult result = counter.countLines(file);
-                    String language = LanguageMapper.getLanguageForFile(file);
-                    
-                    // 更新语言汇总结果
-                    if (languageResults.containsKey(language)) {
-                        languageResults.get(language).merge(result);
-                    } else {
-                        languageResults.put(language, result);
-                    }
-                    
-                    totalFiles++;
-                    break; // 找到支持的计数器后不再继续
-                } catch (IOException e) {
-                    System.err.println("错误: 处理文件时出错: " + file.getAbsolutePath());
-                    e.printStackTrace();
-                }
+        if (counter.supportsFile(file)) {
+            try {
+                LineCountResult fileResult = counter.countLines(file);
+                result.merge(fileResult); // 合并结果
+                totalFiles++;
+            } catch (IOException e) {
+                System.err.println("错误: 处理文件时出错: " + file.getAbsolutePath());
+                e.printStackTrace();
             }
         }
     }
@@ -81,15 +84,12 @@ public class FileAnalyzer {
      * 处理目录
      */
     private void processDirectory(File directory) {
-        // 收集所有支持的扩展名
-        Set<String> extensions = new HashSet<>();
-        for (LineCounter counter : counters) {
-            extensions.addAll(Arrays.asList(counter.getSupportedExtensions()));
-        }
+        // 获取当前计数器支持的扩展名
+        String[] extensions = counter.getSupportedExtensions();
         
         // 扫描目录
         List<File> matchedFiles = DirectoryScanner.scanDirectory(
-                directory, extensions.toArray(new String[0]));
+                directory, extensions);
         
         // 处理找到的文件
         for (File matchedFile : matchedFiles) {
@@ -103,7 +103,9 @@ public class FileAnalyzer {
      * @return 按语言分类的统计结果
      */
     public Map<String, LineCountResult> getLanguageResults() {
-        return Collections.unmodifiableMap(languageResults);
+        Map<String, LineCountResult> results = new HashMap<>();
+        results.put(languageName, result);
+        return Collections.unmodifiableMap(results);
     }
     
     /**
@@ -119,7 +121,7 @@ public class FileAnalyzer {
      * 清除当前分析结果
      */
     public void clear() {
-        languageResults.clear();
+        result = new LineCountResult();
         totalFiles = 0;
     }
 } 

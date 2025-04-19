@@ -55,7 +55,8 @@ public class DirectoryScanner {
         
         String fileName = file.getName().toLowerCase();
         for (String ext : extensions) {
-            if (fileName.endsWith("." + ext.toLowerCase())) {
+            String extLower = ext.toLowerCase();
+            if (fileName.endsWith("." + extLower)) {
                 return true;
             }
         }

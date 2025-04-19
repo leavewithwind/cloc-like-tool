@@ -14,7 +14,7 @@ import java.io.IOException;
  */
 public class CppLineCounter extends LineCounter {
     
-    // 移除头文件支持
+    // 支持的文件扩展名
     private static final String[] SUPPORTED_EXTENSIONS = {"c", "cpp", "cc"};
     
     @Override
@@ -26,88 +26,67 @@ public class CppLineCounter extends LineCounter {
             boolean inMultiLineComment = false;
             
             while ((line = reader.readLine()) != null) {
-                // 记录原始行
+                // 记录原始行和修剪后的行
                 String originalLine = line;
-                // 检查空行
-                if (originalLine.trim().isEmpty()) {
+                String trimmedLine = originalLine.trim();
+                
+                // 空行检测
+                if (trimmedLine.isEmpty()) {
                     result.addBlankLine();
                     continue;
                 }
                 
                 // 处理多行注释状态
                 if (inMultiLineComment) {
-                    // 默认处理为注释行
                     result.addCommentLine();
-                    
-                    // 检查是否有多行注释结束
                     int endCommentPos = originalLine.indexOf("*/");
                     if (endCommentPos >= 0) {
                         inMultiLineComment = false;
-                        
-                        // 如果注释结束后还有内容
-                        if (endCommentPos + 2 < originalLine.length()) {
-                            String afterComment = originalLine.substring(endCommentPos + 2);
-                            
-                            // 检查注释后的内容是否只包含空白
-                            if (!afterComment.trim().isEmpty()) {
-                                // 检查是否有新的注释开始
-                                int newSingleCommentPos = findUnquotedIndex(afterComment, "//");
-                                int newBlockCommentPos = findUnquotedIndex(afterComment, "/*");
-                                
-                                // 如果注释后立即跟随另一个注释，保持注释行分类
-                                if (newSingleCommentPos == 0 || newBlockCommentPos == 0) {
-                                    // 已经添加了注释行，无需操作
-                                    // 检查是否又进入了多行注释
-                                    if (newBlockCommentPos == 0 && afterComment.indexOf("*/", 2) < 0) {
-                                        inMultiLineComment = true;
-                                    }
-                                }
-                                // 如果注释后有实际代码（而非另一个注释），则重新分类为代码行
-                                else if (hasNonCommentCode(afterComment)) {
-                                    // 将此行从注释改为代码
-                                    result.decrementCommentLine();
-                                    result.addCodeLine();
-                                }
-                            }
+                        String afterComment = originalLine.substring(endCommentPos + 2).trim();
+                        if (!afterComment.isEmpty() && isActualCode(afterComment)) {
+                            result.decrementCommentLine();
+                            result.addCodeLine();
                         }
                     }
-                    
                     continue;
                 }
                 
                 // 检查行首单行注释 //
                 int singleCommentPos = findUnquotedIndex(originalLine, "//");
-                if (singleCommentPos == 0) {
+                if (singleCommentPos >= 0 && originalLine.substring(0, singleCommentPos).trim().isEmpty()) {
                     result.addCommentLine();
                     continue;
                 }
                 
                 // 检查行首块注释 /*
                 int blockCommentPos = findUnquotedIndex(originalLine, "/*");
-                if (blockCommentPos == 0) {
+                if (blockCommentPos >= 0 && originalLine.substring(0, blockCommentPos).trim().isEmpty()) {
                     result.addCommentLine();
                     
                     // 检查块注释是否在同一行结束
-                    int endBlockPos = originalLine.indexOf("*/", 2);
+                    int endBlockPos = originalLine.indexOf("*/", blockCommentPos + 2);
                     if (endBlockPos >= 0) {
                         // 如果结束后有内容
                         if (endBlockPos + 2 < originalLine.length()) {
                             String afterComment = originalLine.substring(endBlockPos + 2);
+                            String trimmedAfter = afterComment.trim();
                             
                             // 如果注释后有非空内容
-                            if (!afterComment.trim().isEmpty()) {
+                            if (!trimmedAfter.isEmpty()) {
                                 // 检查是否紧跟着另一个注释
                                 int newSingleComment = findUnquotedIndex(afterComment, "//");
                                 int newBlockComment = findUnquotedIndex(afterComment, "/*");
                                 
-                                if (newSingleComment == 0 || newBlockComment == 0) {
+                                // 如果后续内容是另一个注释
+                                if ((newSingleComment >= 0 && afterComment.substring(0, newSingleComment).trim().isEmpty()) || 
+                                    (newBlockComment >= 0 && afterComment.substring(0, newBlockComment).trim().isEmpty())) {
                                     // 紧跟着另一个注释，依然算作注释行
-                                    if (newBlockComment == 0 && afterComment.indexOf("*/", 2) < 0) {
+                                    if (newBlockComment >= 0 && afterComment.indexOf("*/", newBlockComment + 2) < 0) {
                                         inMultiLineComment = true;
                                     }
                                 }
-                                // 如果不是紧跟着注释，检查是否有实际代码
-                                else if (hasNonCommentCode(afterComment)) {
+                                // 如果后续内容是实际代码
+                                else if (isActualCode(trimmedAfter)) {
                                     // 包含代码，重新分类
                                     result.decrementCommentLine();
                                     result.addCodeLine();
@@ -136,26 +115,30 @@ public class CppLineCounter extends LineCounter {
                     
                     // 检查注释前是否有实际代码
                     String beforeComment = originalLine.substring(0, firstCommentPos);
-                    if (hasNonCommentCode(beforeComment)) {
+                    if (isActualCode(beforeComment.trim())) {
                         // 注释前有代码，算作代码行
                         result.addCodeLine();
                         
                         // 如果是块注释且未在此行结束，设置多行注释状态
-                        if (blockCommentPos > 0 && blockCommentPos == firstCommentPos && 
-                            originalLine.indexOf("*/", blockCommentPos + 2) < 0) {
+                        if (firstCommentPos == blockCommentPos && originalLine.indexOf("*/", blockCommentPos + 2) < 0) {
                             inMultiLineComment = true;
                         }
                     } else {
-                        // 注释前只有空白，算作注释行
+                        // 注释前只有空白或特殊字符，算作注释行
                         result.addCommentLine();
                         
                         // 如果是块注释且未在此行结束，设置多行注释状态
-                        if (blockCommentPos > 0 && blockCommentPos == firstCommentPos && 
-                            originalLine.indexOf("*/", blockCommentPos + 2) < 0) {
+                        if (firstCommentPos == blockCommentPos && originalLine.indexOf("*/", blockCommentPos + 2) < 0) {
                             inMultiLineComment = true;
                         }
                     }
                     
+                    continue;
+                }
+                
+                // 特殊处理：检查#pragma、#include等预处理指令
+                if (trimmedLine.startsWith("#")) {
+                    result.addCodeLine();
                     continue;
                 }
                 
@@ -175,20 +158,25 @@ public class CppLineCounter extends LineCounter {
     }
     
     /**
-     * 检查字符串是否包含非注释的实际代码
-     * 排除掉只包含空白和注释的情况
+     * 检查字符串是否包含实际代码（非注释的有效内容）
      */
-    private boolean hasNonCommentCode(String text) {
+    private boolean isActualCode(String text) {
+        if (text == null || text.isEmpty()) {
+            return false;
+        }
+        
+        // 排除只有注释的行
+        if (text.startsWith("//") || text.startsWith("/*")) {
+            return false;
+        }
+        
+        // 排除只包含括号、分号等的行
         String trimmed = text.trim();
-        if (trimmed.isEmpty()) {
+        if (trimmed.equals(";") || trimmed.equals("{") || trimmed.equals("}") || trimmed.equals("{}")) {
             return false;
         }
         
-        // 检查是否以注释开头
-        if (trimmed.startsWith("//") || trimmed.startsWith("/*")) {
-            return false;
-        }
-        
+        // 否则认为是代码
         return true;
     }
     
@@ -246,5 +234,3 @@ public class CppLineCounter extends LineCounter {
         return -1;
     }
 }
-
-/** *2025-04-19 11:52 **/ 

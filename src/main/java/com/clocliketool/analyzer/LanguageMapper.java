@@ -6,6 +6,7 @@ import java.util.Map;
 
 /**
  * 语言映射器类，负责将文件扩展名映射到编程语言
+ * 扩展支持更多Ruby文件扩展名
  */
 public class LanguageMapper {
     
@@ -19,6 +20,13 @@ public class LanguageMapper {
         
         // Ruby
         extensionLanguageMap.put("rb", "Ruby");
+        extensionLanguageMap.put("rbw", "Ruby");     // Ruby for Windows
+        extensionLanguageMap.put("rake", "Ruby");    // Ruby Rakefile
+        extensionLanguageMap.put("gemspec", "Ruby"); // Ruby Gem规范文件
+        extensionLanguageMap.put("ru", "Ruby");      // Ruby rack配置文件
+        extensionLanguageMap.put("thor", "Ruby");    // Ruby Thor文件
+        extensionLanguageMap.put("podspec", "Ruby"); // Ruby CocoaPods规范文件
+        extensionLanguageMap.put("rbs", "Ruby");     // Ruby类型签名文件
     }
     
     /**

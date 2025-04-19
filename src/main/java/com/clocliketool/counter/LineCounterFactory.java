@@ -7,7 +7,7 @@ import java.util.Map;
 
 /**
  * 行计数器工厂类，负责创建合适的代码行计数器
- * 实现工厂模式，根据命令行参数选择合适的行计数器
+ * 实现工厂模式，根据命令行参数选择特定语言的行计数器
  */
 public class LineCounterFactory {
     
@@ -37,23 +37,6 @@ public class LineCounterFactory {
             e.printStackTrace();
             return null;
         }
-    }
-    
-    /**
-     * 获取所有支持的行计数器实例
-     * @return 所有支持的行计数器实例列表
-     */
-    public static List<LineCounter> getAllCounters() {
-        List<LineCounter> counters = new ArrayList<>();
-        
-        try {
-            counters.add(new CppLineCounter());
-            counters.add(new RubyLineCounter());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        
-        return counters;
     }
     
     /**
