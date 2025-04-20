@@ -1,5 +1,5 @@
 com\clocliketool\cli\CommandLineProcessor.class
-com\clocliketool\counter\CppLineCounter.class
+com\clocliketool\counter\CLineCounter.class
 com\clocliketool\util\DirectoryScanner.class
 com\clocliketool\util\ResultFormatter.class
 com\clocliketool\counter\LineCounter.class
