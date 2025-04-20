@@ -1,6 +1,8 @@
 package com.clocliketool.analyzer;
 
 import com.clocliketool.counter.LineCounter;
+import com.clocliketool.exception.FileProcessingException;
+import com.clocliketool.exception.InvalidArgumentException;
 import com.clocliketool.model.LineCountResult;
 import com.clocliketool.util.DirectoryScanner;
 
@@ -19,19 +21,31 @@ public class FileAnalyzer {
     private int totalFiles = 0;
     private String languageName; // 存储语言名称
     
+    /**
+     * 构造函数
+     * 
+     * @param counters 要使用的语言计数器列表
+     * @throws InvalidArgumentException 如果提供的计数器列表为空
+     */
     public FileAnalyzer(List<LineCounter> counters) {
+        // 检查参数有效性
+        if (counters == null) {
+            throw new InvalidArgumentException("counters", "计数器列表不能为null");
+        }
+        
+        if (counters.isEmpty()) {
+            throw new InvalidArgumentException("counters", "计数器列表不能为空，请提供至少一个有效的语言计数器");
+        }
+        
         // 只使用列表中的第一个计数器
-        if (counters != null && !counters.isEmpty()) {
-            this.counter = counters.get(0);
-            // 获取语言名称
-            String[] extensions = this.counter.getSupportedExtensions();
-            if (extensions.length > 0) {
-                this.languageName = LanguageMapper.getLanguageByExtension(extensions[0]);
-            } else {
-                this.languageName = "Unknown";
-            }
+        this.counter = counters.get(0);
+        
+        // 获取语言名称
+        String[] extensions = this.counter.getSupportedExtensions();
+        if (extensions.length > 0) {
+            this.languageName = LanguageMapper.getLanguageByExtension(extensions[0]);
         } else {
-            throw new IllegalArgumentException("至少需要提供一个计数器");
+            this.languageName = "Unknown";
         }
     }
     
@@ -40,11 +54,11 @@ public class FileAnalyzer {
      * 
      * @param pathsToAnalyze 要分析的路径数组
      * @return 分析是否成功完成
+     * @throws InvalidArgumentException 如果路径数组为空
      */
     public boolean analyzePaths(String[] pathsToAnalyze) {
         if (pathsToAnalyze == null || pathsToAnalyze.length == 0) {
-            System.err.println("错误: 未指定要分析的路径");
-            return false;
+            throw new InvalidArgumentException("pathsToAnalyze", "未指定要分析的路径");
         }
         
         for (String path : pathsToAnalyze) {
@@ -66,6 +80,9 @@ public class FileAnalyzer {
     
     /**
      * 处理单个文件
+     * 
+     * @param file 要处理的文件
+     * @throws FileProcessingException 如果文件处理失败
      */
     private void processFile(File file) {
         if (counter.supportsFile(file)) {
@@ -74,8 +91,7 @@ public class FileAnalyzer {
                 result.merge(fileResult); // 合并结果
                 totalFiles++;
             } catch (IOException e) {
-                System.err.println("错误: 处理文件时出错: " + file.getAbsolutePath());
-                e.printStackTrace();
+                throw new FileProcessingException(file, e);
             }
         }
     }

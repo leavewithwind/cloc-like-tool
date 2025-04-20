@@ -9,6 +9,7 @@ import java.io.IOException;
 
 /**
  * C/C++代码行计数器实现
+ * 将C和C++作为同一类语言处理
  * 处理.c, .cpp, .cc文件的代码行统计
  * 修改以匹配cloc官方工具的处理方式
  */
