@@ -11,6 +11,7 @@
 - 可以按语言分别查看统计结果
 - 处理字符串中的注释字符
 - 支持多种注释风格（C/C++的//和/* */，Ruby的#和=begin/=end）
+- 完善的异常处理机制，提供友好的错误信息
 
 ## 项目架构
 
@@ -18,6 +19,7 @@
 
 - **策略模式**：使用`LineCounter`抽象类定义代码行计数行为，不同语言的计数器实现该类
 - **工厂模式**：使用`LineCounterFactory`根据命令行输入创建适当的计数器
+- **异常处理模式**：使用自定义异常层次结构和统一的异常处理机制
 
 ### 目录结构
 
@@ -43,6 +45,12 @@ cloc-like-tool/
 │   │   │           ├── cli/                           # 命令行处理模块
 │   │   │           │   └── CommandLineProcessor.java  # 命令行处理器
 │   │   │           ├── exception/                     # 异常处理模块
+│   │   │           │   ├── LineCounterException.java  # 基础异常类
+│   │   │           │   ├── UnsupportedLanguageException.java  # 不支持语言异常
+│   │   │           │   ├── FileProcessingException.java  # 文件处理异常
+│   │   │           │   ├── InvalidArgumentException.java  # 无效参数异常
+│   │   │           │   ├── ErrorCode.java            # 错误代码枚举
+│   │   │           │   └── ExceptionHandler.java     # 异常处理工具类
 │   │   │           └── util/                          # 工具类模块
 │   │   │               ├── DirectoryScanner.java      # 目录扫描器
 │   │   │               └── ResultFormatter.java       # 结果格式化工具
@@ -67,6 +75,7 @@ cloc-like-tool/
 4. **接口隔离原则**：通过适当粒度的接口设计，确保依赖最小化
 5. **最少知识原则**：各模块之间通过最少的接口通信
 6. **关注点分离**：将数据存储、业务逻辑和UI展示分离
+7. **异常处理原则**：使用明确的异常类型和统一的异常处理机制
 
 ## 主要类的职责
 
@@ -79,6 +88,39 @@ cloc-like-tool/
 7. **LanguageMapper** - 将文件扩展名映射到编程语言
 8. **DirectoryScanner** - 遍历目录
 9. **ResultFormatter** - 格式化输出结果
+10. **ExceptionHandler** - 统一处理异常
+
+## 异常处理框架
+
+本项目实现了一个完整的异常处理框架，确保程序能够优雅地处理各种错误情况：
+
+### 异常类体系
+
+- **LineCounterException** - 基础异常类，所有自定义异常的父类
+- **UnsupportedLanguageException** - 当指定了不支持的语言时抛出
+- **FileProcessingException** - 当文件处理过程中出现问题时抛出
+- **InvalidArgumentException** - 当提供的参数无效时抛出
+
+### 错误代码管理
+
+使用**ErrorCode**枚举定义了标准化的错误代码和消息：
+
+| 错误代码 | 描述 | 返回值 |
+|---------|------|-------|
+| SUCCESS | 操作成功 | 0 |
+| COMMAND_LINE_ERROR | 命令行参数错误 | 1 |
+| UNSUPPORTED_LANGUAGE | 不支持的语言 | 2 |
+| PATH_NOT_FOUND | 文件或目录不存在 | 3 |
+| FILE_PROCESSING_ERROR | 文件处理错误 | 4 |
+| UNKNOWN_ERROR | 未知错误 | 99 |
+
+### 统一的异常处理
+
+**ExceptionHandler**类提供了统一的异常处理机制：
+- 根据异常类型确定适当的错误代码
+- 生成友好的错误消息
+- 对不同类型的异常提供不同级别的详细信息
+- 仅在必要时显示堆栈跟踪
 
 ## 构建项目
 
@@ -109,32 +151,44 @@ java -jar target/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar [选项] 
 ### 选项
 
 - `-h`, `--help`: 显示帮助信息
-- `-l`, `--language <语言>`: 指定要统计的语言（支持: c, cpp, ruby, all）
+- `-l`, `--language <语言>`: 指定要统计的语言（支持: c/c++, ruby）
 
 ### 示例
 
 ```bash
-# 统计当前目录中的所有支持的文件
-java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar .
+# 显示帮助信息
+java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -h
 
-# 统计指定目录中的C++文件
-java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l cpp /path/to/cpp/project
+# 统计指定目录中的C/C++文件
+java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l c/c++ /path/to/cpp/project
+
+# 统计指定目录中的Ruby文件
+java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l ruby /path/to/ruby/project
 
 # 统计多个目录
-java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar /path/to/dir1 /path/to/dir2
+java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l c/c++ /path/to/dir1 /path/to/dir2
 ```
 
 ## 输出格式
 
 ```
-Files     Language     Lines     Code          Comments     Blanks
-------------------------------------------------------------------
-32        C++          6813      5678          901          234
-8         C            1890      1234          567          89
-12        Ruby         424       345           67           12
-------------------------------------------------------------------
-52        Total        9127      7257          1535         335
+-----------------------------------------------------
+     Files      Lines       Code   Comments     Blanks
+-----------------------------------------------------
+       32       7153       6228        442        483
+-----------------------------------------------------
 ```
+
+## 错误码说明
+
+当程序遇到错误时，会返回以下退出码：
+
+- **0**: 成功执行
+- **1**: 命令行参数错误
+- **2**: 不支持的语言
+- **3**: 文件或目录不存在
+- **4**: 文件处理错误
+- **99**: 未知错误
 
 ## 扩展支持新的语言
 
@@ -143,6 +197,7 @@ Files     Language     Lines     Code          Comments     Blanks
 1. 创建一个继承`LineCounter`的新计数器类
 2. 在`LineCounterFactory`中注册新的计数器
 3. 在`LanguageMapper`中添加新的文件扩展名到语言的映射
+4. 如果需要特殊的异常处理，可以在异常框架中添加新的异常类型
 
 ## 许可证
 
