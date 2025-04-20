@@ -9,6 +9,7 @@ import java.util.List;
 
 /**
  * 命令行处理类，负责解析命令行参数
+ * 要求通过命令行选项明确指定要统计的语言
  */
 public class CommandLineProcessor {
     
@@ -30,6 +31,13 @@ public class CommandLineProcessor {
         try {
             CommandLineParser parser = new DefaultParser();
             cmd = parser.parse(options, args);
+            
+            // 检查语言选项是否存在
+            if (!cmd.hasOption("l")) {
+                System.err.println("错误: 必须使用 -l 或 --language 选项指定要统计的语言");
+                return false;
+            }
+            
             return true;
         } catch (ParseException e) {
             System.err.println("参数解析错误: " + e.getMessage());
@@ -57,23 +65,14 @@ public class CommandLineProcessor {
     public List<LineCounter> getSelectedCounters() {
         List<LineCounter> selectedCounters = new ArrayList<>();
         
-        if (cmd.hasOption("l")) {
-            String langParam = cmd.getOptionValue("l").toLowerCase();
-            if ("all".equals(langParam)) {
-                selectedCounters.addAll(LineCounterFactory.getAllCounters());
-            } else {
-                LineCounter counter = LineCounterFactory.createCounter(langParam);
-                if (counter != null) {
-                    selectedCounters.add(counter);
-                } else {
-                    System.err.println("警告: 不支持的语言: " + langParam);
-                    System.err.println("使用所有支持的计数器...");
-                    selectedCounters.addAll(LineCounterFactory.getAllCounters());
-                }
-            }
+        String langParam = cmd.getOptionValue("l").toLowerCase();
+        LineCounter counter = LineCounterFactory.createCounter(langParam);
+        
+        if (counter != null) {
+            selectedCounters.add(counter);
         } else {
-            // 默认使用所有计数器
-            selectedCounters.addAll(LineCounterFactory.getAllCounters());
+            System.err.println("错误: 不支持的语言: " + langParam);
+            System.err.println("支持的语言: " + LineCounterFactory.getSupportedLanguages());
         }
         
         return selectedCounters;
@@ -94,7 +93,8 @@ public class CommandLineProcessor {
                 .longOpt("language")
                 .hasArg()
                 .argName("语言")
-                .desc("指定要统计的语言 (支持: c, cpp, ruby, all)")
+                .desc("指定要统计的语言 (支持: c, cpp, ruby)")
+                .required(true)
                 .build();
         
         options.addOption(helpOpt);
@@ -108,9 +108,9 @@ public class CommandLineProcessor {
      */
     public void printHelp() {
         HelpFormatter formatter = new HelpFormatter();
-        formatter.printHelp("cloc [选项] <路径1> [<路径2> ...]", 
-                "代码行统计工具 - 统计C/C++和Ruby源文件中的代码行、注释行和空行", 
+        formatter.printHelp("cloc -l <language> <路径1> [<路径2> ...]", 
+                "代码行统计工具 - 统计指定语言源文件中的代码行、注释行和空行", 
                 options, 
                 "\n支持的语言: " + LineCounterFactory.getSupportedLanguages());
     }
-} 
+}
