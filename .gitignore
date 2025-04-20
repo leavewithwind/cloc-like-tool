@@ -55,10 +55,10 @@ nbdist/
 *.iml
 
 # 操作系统文件
-.DS_Store
-Thumbs.db
-ehthumbs.db
-Desktop.ini
+.DS_Store #mac系统
+Thumbs.db #windows系统
+ehthumbs.db #windows系统
+Desktop.ini #windows系统
 
 # JVM崩溃日志
 hs_err_pid*
