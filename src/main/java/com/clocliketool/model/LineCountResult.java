@@ -1,13 +1,12 @@
 package com.clocliketool.model;
 
 /**
- * 存储代码行计数结果的数据类
- * 作为模型类用于表示统计结果
+ * 存储代码行计数结果的数据模型类
  */
 public class LineCountResult {
-    private int codeLines;
-    private int commentLines;
-    private int blankLines;
+    private int codeLines; // 代码行数计数
+    private int commentLines; // 注释行数计数
+    private int blankLines; // 空白行数计数
     private int fileCount; // 文件数量跟踪
 
     public LineCountResult() {
@@ -17,6 +16,9 @@ public class LineCountResult {
         this.fileCount = 0;
     }
 
+    /**
+     * 使用指定的代码行数、注释行数和空白行数初始化一个新的LineCountResult实例，文件数量默认初始化为1。
+     */
     public LineCountResult(int codeLines, int commentLines, int blankLines) {
         this.codeLines = codeLines;
         this.commentLines = commentLines;
@@ -32,10 +34,6 @@ public class LineCountResult {
         commentLines++;
     }
     
-    /**
-     * 减少注释行计数
-     * 用于当一行被重新归类时（从注释行变为代码行）
-     */
     public void decrementCommentLine() {
         if (commentLines > 0) {
             commentLines--;
@@ -78,13 +76,10 @@ public class LineCountResult {
     }
 
     /**
-     * 验证行数统计是否正确
-     * @return 如果 totalLines = codeLines + commentLines + blankLines 则返回true
+     * 重写toString方法，返回一个包含代码行数、注释行数、空白行数、总行数和文件数量的字符串。
+     * 目前没有使用，用于调试。
+     * @return 包含统计结果的字符串
      */
-    public boolean isValid() {
-        return getTotalLines() == (codeLines + commentLines + blankLines);
-    }
-
     @Override
     public String toString() {
         return String.format("Code lines: %d, Comment lines: %d, Blank lines: %d, Total lines: %d, Files: %d",

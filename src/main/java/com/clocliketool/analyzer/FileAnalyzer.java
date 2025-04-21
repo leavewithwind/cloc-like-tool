@@ -17,9 +17,9 @@ import java.util.*;
  */
 public class FileAnalyzer {
     
-    private final LineCounter counter; // 计数器
-    private LineCountResult result = new LineCountResult(); // 直接使用一个结果对象
-    private String languageName; // 存储语言名称
+    private final LineCounter counter; // 代码行计数器
+    private LineCountResult result = new LineCountResult(); // 结果对象
+    private String languageName; // 语言名称
     
     /**
      * 构造函数
@@ -28,12 +28,10 @@ public class FileAnalyzer {
      * @throws InvalidArgumentException 如果提供的计数器列表为空
      */
     public FileAnalyzer(LineCounter counter) {
-        // 检查参数有效性
+        // 检查计数器是否为null
         if (counter == null) {
-            throw new InvalidArgumentException("counters", "计数器列表不能为null");
+            throw new InvalidArgumentException("counter", "计数器不能为null");
         }
-        
-        // 只使用列表中的第一个计数器
         this.counter = counter;
         
         // 获取语言名称
@@ -57,6 +55,7 @@ public class FileAnalyzer {
             throw new InvalidArgumentException("pathsToAnalyze", "未指定要分析的路径");
         }
         
+        // 遍历给定的路径数组，并对每个路径进行检查。如果路径不存在，打印警告信息并继续下一个路径。
         for (String path : pathsToAnalyze) {
             File file = new File(path);
             if (!file.exists()) {
@@ -65,20 +64,20 @@ public class FileAnalyzer {
             }
             
             if (file.isFile()) {
-                processFile(file);
+                processFile(file); // 如果路径是文件，则调用processFile方法处理该文件。
             } else if (file.isDirectory()) {
-                processDirectory(file);
+                processDirectory(file); // 如果路径是目录，则调用processDirectory方法处理该目录。
             }
         }
         
-        return result.getFileCount() > 0;
+        return result.getFileCount() > 0; // 返回分析结果中是否有文件被成功处理
     }
     
     /**
      * 处理单个文件
      * 
      * @param file 要处理的文件
-     * @throws FileProcessingException 如果文件处理失败
+     * @throws FileProcessingException 文件处理失败
      */
     private void processFile(File file) {
         if (counter.supportsFile(file)) {

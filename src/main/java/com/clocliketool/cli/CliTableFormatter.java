@@ -5,12 +5,12 @@ import com.clocliketool.model.LineCountResult;
 import java.util.Map;
 
 /**
- * 命令行表格格式化工具，将统计结果格式化为终端友好的表格输出
+ * 命令行表格格式化工具
  */
 public class CliTableFormatter {
     
     /**
-     * 生成规范的表格样式的统计结果，适合在终端中显示
+     * 生成如预期要求所示的表格样式的统计结果，适合在终端中显示
      * 
      * @param languageResults 按语言分类的统计结果
      * @return 格式化后的结果字符串

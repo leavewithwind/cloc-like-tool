@@ -4,23 +4,17 @@ import com.clocliketool.analyzer.FileAnalyzer;
 import com.clocliketool.cli.CliTableFormatter;
 import com.clocliketool.cli.CommandLineProcessor;
 import com.clocliketool.counter.LineCounter;
-import com.clocliketool.exception.ErrorCode;
+import com.clocliketool.exception.StatusCode;
 import com.clocliketool.exception.ExceptionHandler;
 import com.clocliketool.model.LineCountResult;
 
 import java.util.Map;
 
 /**
- * 应用程序主类，作为程序入口点
- * 负责整体执行流程的协调
+ * 程序入口
  */
 public class Main {
-    
-    /**
-     * 主方法，启动应用程序
-     * 
-     * @param args 命令行参数
-     */
+
     public static void main(String[] args) {
         int exitCode = run(args);
         
@@ -30,27 +24,28 @@ public class Main {
     }
     
     /**
-     * 执行应用程序
+     * 启动应用程序
      * 
      * @param args 命令行参数
      * @return 执行结果码，0表示成功，非0表示失败
      */
     private static int run(String[] args) {
-        // 完全没有参数时显示帮助菜单作为彩蛋
+        // 完全没有参数时显示帮助菜单
         if (args.length == 0) {
             CommandLineProcessor cmdProcessor = new CommandLineProcessor(args);
             cmdProcessor.printHelp();
-            return ErrorCode.SUCCESS.getCode();
+            return StatusCode.SUCCESS.getCode();
         }
         
         // 解析命令行参数
         CommandLineProcessor cmdProcessor = new CommandLineProcessor(args);
         
         try {
+            // 尝试解析命令行参数
             if (!cmdProcessor.parseArguments()) {
-                // 直接显示帮助信息，不额外显示语言支持提示，避免重复
+                // 如果解析失败，打印帮助信息以指导用户正确使用命令行参数
                 cmdProcessor.printHelp();
-                return ErrorCode.COMMAND_LINE_ERROR.getCode();
+                return StatusCode.COMMAND_LINE_ERROR.getCode(); // 返回命令行参数错误的状态码
             }
             
             // 获取要处理的路径
@@ -58,7 +53,7 @@ public class Main {
             if (paths.length == 0) {
                 System.err.println("错误: 未指定要分析的路径");
                 cmdProcessor.printHelp();
-                return ErrorCode.PATH_NOT_FOUND.getCode();
+                return StatusCode.PATH_NOT_FOUND.getCode();
             }
             
             // 获取指定的语言计数器
@@ -79,11 +74,10 @@ public class Main {
                 System.out.println("未找到匹配的文件。");
             }
             
-            return ErrorCode.SUCCESS.getCode();
+            return StatusCode.SUCCESS.getCode();
             
         } catch (Exception e) {
-            // 使用异常处理器统一处理异常
-            return ExceptionHandler.handleException(e);
+            return ExceptionHandler.handleException(e); // 使用异常处理器统一处理异常
         }
     }
 }

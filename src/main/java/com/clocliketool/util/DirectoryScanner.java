@@ -6,7 +6,7 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * 目录扫描器，扫描目录并找出符合条件的文件
+ * 目录扫描工具
  */
 public class DirectoryScanner {
     
@@ -28,7 +28,7 @@ public class DirectoryScanner {
 
         // 调用递归方法扫描目录，将匹配的文件添加到列表中
         scanDirectoryRecursively(directory, extensions, null, matchedFiles);
-        
+
         return matchedFiles; // 返回包含所有匹配文件的列表
     }
     
@@ -37,7 +37,7 @@ public class DirectoryScanner {
      * 
      * @param directory 要扫描的目录
      * @param extensions 要匹配的文件扩展名数组
-     * @param specialFiles 要匹配的特殊文件名数组，可以为null
+     * @param specialFiles 要匹配的特殊文件名数组，可为null
      * @return 匹配的文件列表
      */
     public static List<File> scanDirectory(File directory, String[] extensions, String[] specialFiles) {
@@ -49,16 +49,16 @@ public class DirectoryScanner {
         // 创建存储匹配文件的列表
         List<File> matchedFiles = new ArrayList<>();
 
-        // 调用递归方法扫描目录，将匹配的文件添加到列表中
+        // 递归扫描目录，将匹配的文件添加到列表中
         scanDirectoryRecursively(directory, extensions, specialFiles, matchedFiles);
         
         return matchedFiles; // 返回包含所有匹配文件的列表
     }
     
     /**
-     * 递归扫描给定目录，查找具有指定扩展名或特殊文件名的文件，并将其添加到匹配文件列表中。
+     * 递归扫描目标目录，查找具有指定扩展名或特殊文件名的文件，并将其添加到匹配文件列表中。
      *
-     * @param directory 当前要扫描的目录
+     * @param directory 要扫描的目标目录
      * @param extensions 要匹配的文件扩展名数组
      * @param specialFiles 要匹配的特殊文件名数组，可以为null
      * @param matchedFiles 存储匹配文件的列表
@@ -72,20 +72,20 @@ public class DirectoryScanner {
         for (File file : files) { // 遍历目录中每个文件和其子目录
             if (file.isDirectory()) { // 如果是子目录，递归扫描
                 scanDirectoryRecursively(file, extensions, specialFiles, matchedFiles);
-            } else if (file.isFile()) { // 如果是文件
+            } else if (file.isFile()) { // 如果是文件添加到匹配列表中
                 if (hasMatchingExtension(file, extensions) || hasMatchingSpecialFileName(file, specialFiles)) {
-                    matchedFiles.add(file); // 将文件添加到匹配列表中
+                    matchedFiles.add(file); // 
                 }
             }
         }
     }
     
     /**
-     * 检查给定的文件是否具有匹配的扩展名
+     * 检查目标文件是否具有匹配的扩展名
      *
      * @param file 要检查的文件
      * @param extensions 要匹配的文件扩展名数组
-     * @return 如果文件有匹配的扩展名，则返回true；否则返回false
+     * @return 如果文件有匹配的扩展名，则返回true，否则返回false
      */
     private static boolean hasMatchingExtension(File file, String[] extensions) {
         if (extensions == null || extensions.length == 0) {
@@ -107,11 +107,11 @@ public class DirectoryScanner {
     }
     
     /**
-     * 检查给定的文件是否具有匹配的特殊文件名
+     * 检查目标文件是否具有匹配的特殊文件名
      *
      * @param file 要检查的文件
      * @param specialFiles 要匹配的特殊文件名数组
-     * @return 如果文件有匹配的特殊文件名，则返回true；否则返回false
+     * @return 如果文件有匹配的特殊文件名，则返回true，否则返回false
      */
     private static boolean hasMatchingSpecialFileName(File file, String[] specialFiles) {
         if (specialFiles == null || specialFiles.length == 0) {
@@ -123,10 +123,10 @@ public class DirectoryScanner {
         // 遍历所有指定的特殊文件名
         for (String specialFileName : specialFiles) {
             if (fileName.equals(specialFileName)) {
-                return true; // 如果匹配，返回true
+                return true; // 匹配返回true
             }
         }
         
-        return false; // 没有匹配的特殊文件名，返回false
+        return false; // 没有匹配的特殊文件名返回false
     }
 }

@@ -4,7 +4,7 @@ import java.io.File;
 
 /**
  * 文件处理异常
- * 当处理文件时发生I/O错误或其他问题时抛出
+ * 当处理文件时发生问题时抛出
  */
 public class FileProcessingException extends LineCounterException {
     

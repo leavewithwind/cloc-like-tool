@@ -11,10 +11,9 @@ import org.apache.commons.cli.*;
  * 要求通过命令行选项明确指定要统计的语言
  */
 public class CommandLineProcessor {
-    
-    private final String[] args;
-    private CommandLine cmd;
-    private Options options;
+    private final String[] args; // 命令行参数数组，存储从命令行传入的参数
+    private CommandLine cmd; // 解析后的命令行对象，用于访问解析后的选项和参数
+    private Options options; // 命令行选项对象，定义了可用的命令行选项
     
     public CommandLineProcessor(String[] args) {
         this.args = args;
@@ -39,7 +38,6 @@ public class CommandLineProcessor {
             
             return true;
         } catch (ParseException e) {
-            // 将技术性错误转换为用户友好的消息
             String errorMessage = "参数解析错误";
             
             // 根据不同类型的异常提供具体的错误信息
@@ -58,7 +56,7 @@ public class CommandLineProcessor {
     
     /**
      * 检查是否需要显示帮助信息
-     * 现在只有在完全没有参数时才显示帮助
+     * 在完全没有参数时显示帮助信息以提示用户
      */
     public boolean shouldShowHelp() {
         return args.length == 0;
@@ -73,9 +71,8 @@ public class CommandLineProcessor {
     
     /**
      * 获取用户选择的行计数器
-     * 即使是不支持的语言，也会返回一个空列表，而不是null
-     * @return 选择的行计数器列表，如果语言不支持则为空列表
-     * @throws UnsupportedLanguageException 如果指定了不支持的语言
+     * @return 选择的行计数器
+     * @throws UnsupportedLanguageException 指定了不支持的语言
      */
     public LineCounter getSelectedCounters() {
         String langParam = cmd.getOptionValue("l").toLowerCase();
@@ -84,7 +81,7 @@ public class CommandLineProcessor {
         if (selectedCounter != null) {
             return selectedCounter;
         } else {
-            // 抛出异常，避免在这里提示导致重复
+            // 抛出异常，并显示支持的语言
             throw new UnsupportedLanguageException(langParam, LineCounterFactory.getSupportedLanguages());
         }
     }
@@ -104,7 +101,6 @@ public class CommandLineProcessor {
                 .build();
         
         options.addOption(langOpt);
-        
         return options;
     }
     
