@@ -13,10 +13,9 @@ public class ResultFormatter {
      * 生成规范的表格样式的统计结果
      * 
      * @param languageResults 按语言分类的统计结果
-     * @param totalFiles 处理的文件总数
      * @return 格式化后的结果字符串
      */
-    public static String formatResults(Map<String, LineCountResult> languageResults, int totalFiles) {
+    public static String formatResults(Map<String, LineCountResult> languageResults) {
 
         // 用StringBuilder构建和拼接字符串，比直接使用+更高效，避免了创建多个中间字符串对象。
         StringBuilder sb = new StringBuilder();
@@ -37,7 +36,7 @@ public class ResultFormatter {
         
         // 输出统计结果 - 右对齐
         sb.append(String.format("%6d %12d %12d %12d %12d\n",
-                totalFiles,
+                result.getFileCount(),
                 result.getTotalLines(),
                 result.getCodeLines(),
                 result.getCommentLines(),

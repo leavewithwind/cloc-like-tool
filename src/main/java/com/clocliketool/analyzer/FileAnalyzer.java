@@ -18,7 +18,6 @@ public class FileAnalyzer {
     
     private final LineCounter counter; // 改为单个计数器
     private LineCountResult result = new LineCountResult(); // 直接使用一个结果对象
-    private int totalFiles = 0;
     private String languageName; // 存储语言名称
     
     /**
@@ -27,18 +26,14 @@ public class FileAnalyzer {
      * @param counters 要使用的语言计数器列表
      * @throws InvalidArgumentException 如果提供的计数器列表为空
      */
-    public FileAnalyzer(List<LineCounter> counters) {
+    public FileAnalyzer(LineCounter counter) {
         // 检查参数有效性
-        if (counters == null) {
+        if (counter == null) {
             throw new InvalidArgumentException("counters", "计数器列表不能为null");
         }
         
-        if (counters.isEmpty()) {
-            throw new InvalidArgumentException("counters", "计数器列表不能为空，请提供至少一个有效的语言计数器");
-        }
-        
         // 只使用列表中的第一个计数器
-        this.counter = counters.get(0);
+        this.counter = counter;
         
         // 获取语言名称
         String[] extensions = this.counter.getSupportedExtensions();
@@ -75,7 +70,7 @@ public class FileAnalyzer {
             }
         }
         
-        return totalFiles > 0;
+        return result.getFileCount() > 0;
     }
     
     /**
@@ -89,7 +84,6 @@ public class FileAnalyzer {
             try {
                 LineCountResult fileResult = counter.countLines(file);
                 result.merge(fileResult); // 合并结果
-                totalFiles++;
             } catch (IOException e) {
                 throw new FileProcessingException(file, e);
             }
@@ -123,14 +117,4 @@ public class FileAnalyzer {
         results.put(languageName, result);
         return Collections.unmodifiableMap(results);
     }
-    
-    /**
-     * 获取处理的文件总数
-     * 
-     * @return 文件总数
-     */
-    public int getTotalFiles() {
-        return totalFiles;
-    }
-    
 }

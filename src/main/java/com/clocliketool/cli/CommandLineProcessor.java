@@ -79,20 +79,16 @@ public class CommandLineProcessor {
      * @return 选择的行计数器列表，如果语言不支持则为空列表
      * @throws UnsupportedLanguageException 如果指定了不支持的语言
      */
-    public List<LineCounter> getSelectedCounters() {
-        List<LineCounter> selectedCounters = new ArrayList<>();
-        
+    public LineCounter getSelectedCounters() {
         String langParam = cmd.getOptionValue("l").toLowerCase();
-        LineCounter counter = LineCounterFactory.createCounter(langParam);
+        LineCounter selectedCounter = LineCounterFactory.createCounter(langParam);
         
-        if (counter != null) {
-            selectedCounters.add(counter);
+        if (selectedCounter != null) {
+            return selectedCounter;
         } else {
             // 抛出异常，避免在这里提示导致重复
             throw new UnsupportedLanguageException(langParam, LineCounterFactory.getSupportedLanguages());
         }
-        
-        return selectedCounters;
     }
     
     /**

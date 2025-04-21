@@ -54,19 +54,18 @@ public class ApplicationRunner {
             }
             
             // 获取指定的语言计数器
-            List<LineCounter> counters = cmdProcessor.getSelectedCounters();
+            LineCounter counter = cmdProcessor.getSelectedCounters();
             
             // 执行文件分析
-            FileAnalyzer analyzer = new FileAnalyzer(counters);
+            FileAnalyzer analyzer = new FileAnalyzer(counter);
             boolean hasResults = analyzer.analyzePaths(paths);
             
             // 处理结果
             if (hasResults) {
                 Map<String, LineCountResult> languageResults = analyzer.getLanguageResults();
-                int totalFiles = analyzer.getTotalFiles();
                 
                 // 打印结果
-                String formattedResults = ResultFormatter.formatResults(languageResults, totalFiles);
+                String formattedResults = ResultFormatter.formatResults(languageResults);
                 System.out.println(formattedResults);
             } else {
                 System.out.println("未找到匹配的文件。");
