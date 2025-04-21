@@ -16,6 +16,12 @@ public class RubyLineCounter extends LineCounter {
     
     private static final String[] SUPPORTED_EXTENSIONS = {"rb", "rake", "gemspec", "rbw", "rbx", "rjs", "rabl", "ru", "thor", "podspec", "rxml"};
     
+    private static final String[] SUPPORTED_SPECIAL_FILES = {
+        "Rakefile", "Gemfile", "Capfile", "Guardfile", "Brewfile", "Vagrantfile", "Thorfile",
+        "config.ru", "Berksfile", "Deliverfile", "Fastfile", "Snapfile", "Podfile", "Dangerfile",
+        "Appfile", "Matchfile", "Pluginfile", "Scanfile", "Gymfile", "Cartfile"
+    };
+    
     @Override
     public LineCountResult countLines(File file) throws IOException {
         LineCountResult result = new LineCountResult();
@@ -109,6 +115,11 @@ public class RubyLineCounter extends LineCounter {
     @Override
     public String[] getSupportedExtensions() {
         return SUPPORTED_EXTENSIONS;
+    }
+    
+    @Override
+    public String[] getSupportedSpecialFiles() {
+        return SUPPORTED_SPECIAL_FILES;
     }
     
     /**

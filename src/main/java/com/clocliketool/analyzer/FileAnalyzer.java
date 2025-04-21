@@ -94,12 +94,13 @@ public class FileAnalyzer {
      * 处理目录
      */
     private void processDirectory(File directory) {
-        // 获取当前计数器支持的扩展名
+        // 获取当前计数器支持的扩展名和特殊文件名
         String[] extensions = counter.getSupportedExtensions();
+        String[] specialFiles = counter.getSupportedSpecialFiles();
         
-        // 扫描目录
+        // 扫描目录，同时处理扩展名和特殊文件名
         List<File> matchedFiles = DirectoryScanner.scanDirectory(
-                directory, extensions);
+                directory, extensions, specialFiles);
         
         // 处理找到的文件
         for (File matchedFile : matchedFiles) {

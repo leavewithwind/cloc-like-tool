@@ -28,6 +28,15 @@ public abstract class LineCounter {
     public abstract String[] getSupportedExtensions();
     
     /**
+     * 获取此计数器支持的无扩展名特殊文件名
+     * 
+     * @return 支持的特殊文件名数组，如不支持则返回空数组
+     */
+    public String[] getSupportedSpecialFiles() {
+        return new String[0]; // 默认实现不支持特殊文件
+    }
+    
+    /**
      * 检查文件是否受此计数器支持
      * 
      * @param file 要检查的文件
@@ -38,9 +47,19 @@ public abstract class LineCounter {
             return false;
         }
         
-        String fileName = file.getName().toLowerCase();
+        String fileName = file.getName();
+        String lowerFileName = fileName.toLowerCase();
+        
+        // 检查是否支持该扩展名
         for (String ext : getSupportedExtensions()) {
-            if (fileName.endsWith("." + ext.toLowerCase())) {
+            if (lowerFileName.endsWith("." + ext.toLowerCase())) {
+                return true;
+            }
+        }
+        
+        // 检查是否是特殊无扩展名文件
+        for (String specialFile : getSupportedSpecialFiles()) {
+            if (fileName.equals(specialFile)) {
                 return true;
             }
         }
