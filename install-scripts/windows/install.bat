@@ -76,15 +76,38 @@ echo Creating launcher script...
     echo java -jar "%%USERPROFILE%%\bin\cloc-like-tool\%JAR_NAME%" %%*
 ) > "%BIN_DIR%\cloc.bat"
 
-rem Add to PATH
-echo Adding to PATH...
-powershell -Command ^
-    "$path = [Environment]::GetEnvironmentVariable('PATH', 'User'); ^
-    if ($path -notlike '*%%USERPROFILE%%\bin*') { ^
-        [Environment]::SetEnvironmentVariable('PATH', ^
-        [Environment]::GetEnvironmentVariable('PATH', 'User') + ';%%USERPROFILE%%\bin', ^
-        'User') ^
-    }"
+rem Add to PATH using the most direct approach
+echo Adding to PATH using registry edit...
+
+rem Get current PATH from registry
+for /f "tokens=2*" %%a in ('reg query "HKCU\Environment" /v PATH 2^>nul') do set "CURRENT_PATH=%%b"
+
+rem Check if PATH already contains the bin directory
+echo "%CURRENT_PATH%" | findstr /C:"%BIN_DIR%" > nul
+if %ERRORLEVEL% EQU 0 (
+    echo %BIN_DIR% is already in PATH.
+) else (
+    rem Update PATH in registry
+    if not defined CURRENT_PATH (
+        reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "%BIN_DIR%" /f
+    ) else (
+        reg add "HKCU\Environment" /v PATH /t REG_EXPAND_SZ /d "%CURRENT_PATH%;%BIN_DIR%" /f
+    )
+    
+    if %ERRORLEVEL% EQU 0 (
+        echo Successfully added bin directory to PATH.
+        
+        rem Broadcast WM_SETTINGCHANGE message to notify applications of environment change
+        powershell -Command "$null = Add-Type -Namespace Win32 -Name NativeMethods -MemberDefinition '[DllImport(\"user32.dll\", SetLastError = true, CharSet = CharSet.Auto)] public static extern IntPtr SendMessageTimeout(IntPtr hWnd, uint Msg, UIntPtr wParam, string lParam, uint fuFlags, uint uTimeout, out UIntPtr lpdwResult);'; $HWND_BROADCAST = [IntPtr]0xffff; $WM_SETTINGCHANGE = 0x1a; $result = [UIntPtr]::Zero; [Win32.NativeMethods]::SendMessageTimeout($HWND_BROADCAST, $WM_SETTINGCHANGE, [UIntPtr]::Zero, 'Environment', 2, 5000, [ref]$result)"
+    ) else (
+        echo Failed to update PATH. Please add it manually:
+        echo 1. Open Start menu and search for "Environment Variables"
+        echo 2. Click "Edit the system environment variables"
+        echo 3. Click "Environment Variables..." button
+        echo 4. Under "User variables", find and select PATH
+        echo 5. Click Edit, then New, and add: %BIN_DIR%
+    )
+)
 
 echo.
 echo Installation complete!
@@ -92,4 +115,4 @@ echo Please restart your command prompt before using the cloc command.
 echo Example usage: cloc -l c++ your_source_code_directory
 
 :End
-pause 
+pause
