@@ -122,14 +122,21 @@ cloc-like-tool/
 - 对不同类型的异常提供不同级别的详细信息
 - 仅在必要时显示堆栈跟踪
 
-## 构建项目
+## 系统要求
 
-### 前提条件
+- Java JDK 11或更高版本
+- Windows、macOS 或 Linux 操作系统
+
+## 安装与使用
+
+### 构建项目
+
+#### 前提条件
 
 - Java JDK 11或更高版本
 - Maven 3.6或更高版本
 
-### 构建步骤
+#### 构建步骤
 
 ```bash
 # 克隆项目
@@ -140,25 +147,23 @@ cd cloc-like-tool
 mvn clean package
 ```
 
-构建完成后，可以在`target`目录中找到可执行的JAR文件。
+构建完成后，可在`target`目录中找到两种类型的文件：
+- 可执行JAR文件：`cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar`
+- 发布包：`cloc-like-tool-1.0-SNAPSHOT-release.zip`（Windows用）和`cloc-like-tool-1.0-SNAPSHOT-release.tar.gz`（Unix/Linux/macOS用）
 
-## 使用方法
+### 使用JAR文件直接运行
 
 ```bash
 java -jar target/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar [选项] <路径1> [<路径2> ...]
 ```
 
-### 选项
+#### 选项
 
-- `-h`, `--help`: 显示帮助信息
 - `-l`, `--language <语言>`: 指定要统计的语言（支持: c++, ruby）
 
-### 示例
+#### 示例
 
 ```bash
-# 显示帮助信息
-java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -h
-
 # 统计指定目录中的C/C++文件
 java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l c++ /path/to/cpp/project
 
@@ -168,6 +173,73 @@ java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l ruby /path/to
 # 统计多个目录
 java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l c++ /path/to/dir1 /path/to/dir2
 ```
+
+### 简化命令执行（使用"cloc"命令）
+
+为了使用更简便的`cloc`命令，您可以安装发布包。
+
+#### Windows安装
+
+1. 解压下载的`cloc-like-tool-1.0-SNAPSHOT-release.zip`
+2. 双击运行 `install-windows.bat`
+3. 脚本会自动:
+   - 将脚本和JAR文件复制到 `%USERPROFILE%\bin` 目录
+   - 将此目录添加到系统PATH环境变量
+4. 重新打开命令提示符或PowerShell窗口
+5. 输入 `cloc` 测试安装是否成功
+
+#### macOS/Linux安装
+
+1. 解压下载的`cloc-like-tool-1.0-SNAPSHOT-release.tar.gz`
+2. 打开终端，导航到解压目录
+3. 执行以下命令:
+   ```bash
+   chmod +x install-unix.sh
+   ./install-unix.sh
+   ```
+4. 脚本会自动:
+   - 将脚本和JAR文件复制到 `~/bin` 目录
+   - 将此目录添加到系统PATH环境变量
+5. 重新打开终端或执行 `source ~/.bashrc` 更新环境变量
+6. 输入 `cloc` 测试安装是否成功
+
+#### 安装后的使用方法
+
+安装完成后，您可以使用以下简化命令运行CLOC工具:
+
+```bash
+# 统计C/C++代码
+cloc -l c++ /path/to/source/code
+
+# 统计Ruby代码
+cloc -l ruby /path/to/source/code
+```
+
+#### 手动安装（如果自动脚本不工作）
+
+##### Windows手动安装
+
+1. 创建一个目录，例如 `C:\bin`
+2. 将 `cloc.bat` 和 JAR文件复制到此目录
+3. 将此目录添加到系统PATH环境变量:
+   - 右键点击「此电脑」-> 属性 -> 高级系统设置 -> 环境变量
+   - 找到「Path」变量，点击编辑，添加新目录
+   - 点击确定保存更改
+
+##### macOS/Linux手动安装
+
+1. 创建一个目录：`mkdir -p ~/bin`
+2. 复制文件：
+   ```bash
+   cp cloc.sh ~/bin/cloc
+   cp cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar ~/bin/
+   chmod +x ~/bin/cloc
+   ```
+3. 添加到PATH：
+   ```bash
+   echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
+   source ~/.bashrc
+   ```
 
 ## 输出格式
 

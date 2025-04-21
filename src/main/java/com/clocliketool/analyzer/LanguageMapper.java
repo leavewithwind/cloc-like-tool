@@ -65,16 +65,4 @@ public class LanguageMapper {
         }
         return "";
     }
-    
-    /**
-     * 注册新的语言映射
-     * 
-     * @param extension 文件扩展名
-     * @param language 语言名称
-     */
-    public static void registerLanguage(String extension, String language) {
-        if (extension != null && !extension.isEmpty() && language != null && !language.isEmpty()) {
-            extensionLanguageMap.put(extension.toLowerCase(), language);
-        }
-    }
 } 

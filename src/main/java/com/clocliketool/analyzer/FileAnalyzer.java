@@ -133,11 +133,4 @@ public class FileAnalyzer {
         return totalFiles;
     }
     
-    /**
-     * 清除当前分析结果
-     */
-    public void clear() {
-        result = new LineCountResult();
-        totalFiles = 0;
-    }
 }
