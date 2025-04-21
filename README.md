@@ -40,9 +40,9 @@ cloc-like-tool/
 │   │   │           │   ├── RubyLineCounter.java       # Ruby实现
 │   │   │           │   └── LineCounterFactory.java    # 计数器工厂
 │   │   │           ├── analyzer/                      # 分析器模块
-│   │   │           │   ├── FileAnalyzer.java          # 文件分析器
-│   │   │           │   └── LanguageMapper.java        # 语言映射器
+│   │   │           │   └── FileAnalyzer.java          # 文件分析器
 │   │   │           ├── cli/                           # 命令行处理模块
+│   │   │           │   ├── CliTableFormatter.java     # 命令行表格格式化工具
 │   │   │           │   └── CommandLineProcessor.java  # 命令行处理器
 │   │   │           ├── exception/                     # 异常处理模块
 │   │   │           │   ├── LineCounterException.java  # 基础异常类
@@ -53,7 +53,7 @@ cloc-like-tool/
 │   │   │           │   └── ExceptionHandler.java     # 异常处理工具类
 │   │   │           └── util/                          # 工具类模块
 │   │   │               ├── DirectoryScanner.java      # 目录扫描器
-│   │   │               └── ResultFormatter.java       # 结果格式化工具
+│   │   │               └── LanguageMapper.java        # 语言映射器
 │   └── test/
 │       ├── java/                                     # 测试代码目录
 │       └── resources/                                # 测试资源目录
@@ -357,6 +357,20 @@ scripts/windows/uninstall.bat
 2. 在`LineCounterFactory`中注册新的计数器
 3. 在`LanguageMapper`中添加新的文件扩展名到语言的映射
 4. 如果需要特殊的异常处理，可以在异常框架中添加新的异常类型
+
+## 测试策略
+
+本项目采用了特定的测试策略，主要依赖于功能测试而非传统的单元测试：
+
+1. **比对式功能测试**：项目中的`scripts/test-ruby-count.sh`脚本采用比对式测试方法，通过将本工具的计数结果与官方cloc工具的结果进行对比，验证计数算法的准确性。
+
+2. **针对性与高效性**：由于项目规模较小且功能聚焦于代码行计数，这种端到端的测试方法能够直接验证核心功能，比单独测试每个组件更加高效。
+
+3. **实际使用场景验证**：比对测试使用真实的代码文件作为输入，确保工具在实际使用场景中的可靠性，这比模拟测试更能发现实际问题。
+
+4. **结果导向的质量保证**：对于计数工具而言，最终计数结果的准确性是最关键的质量指标，通过与业界标准工具的结果比对，可以直接验证这一点。
+
+这种测试方法针对本项目的特点，提供了一个简单有效的质量保证机制，确保代码计数结果符合行业标准，同时减少了开发和维护测试代码的工作量。
 
 ## 许可证
 

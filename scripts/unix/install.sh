@@ -1,48 +1,89 @@
 #!/bin/bash
+# Simple installation script for cloc tool
 echo "Installing cloc tool..."
 
-# 获取脚本目录和项目根目录
+# Set directories
+BIN_DIR="$HOME/bin"
+TOOL_DIR="$BIN_DIR/cloc-like-tool"
+JAR_NAME="cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar"
+
+# Create directories
+echo "Creating directories..."
+mkdir -p "$TOOL_DIR"
+
+# Get script directory and project root
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-ROOT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
+PROJECT_ROOT="$(cd "$SCRIPT_DIR/../.." && pwd 2>/dev/null || echo "")"
 
-# 创建用户bin目录和程序专用子目录（如果不存在）
-mkdir -p ~/bin/cloc-like-tool
+# Find JAR file
+echo "Looking for JAR file..."
+JAR_PATH=""
 
-# 复制JAR文件到专用目录
-echo "Copying files to ~/bin/cloc-like-tool..."
-cp "$ROOT_DIR/target/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar" ~/bin/cloc-like-tool/
+# Check script directory for JAR
+if [ -f "$SCRIPT_DIR/$JAR_NAME" ]; then
+    JAR_PATH="$SCRIPT_DIR/$JAR_NAME"
+    echo "Found JAR in script directory"
+elif [ -f "$JAR_NAME" ]; then
+    # Check current directory for JAR
+    JAR_PATH="$PWD/$JAR_NAME"
+    echo "Found JAR in current directory"
+elif [ -n "$PROJECT_ROOT" ] && [ -f "$PROJECT_ROOT/$JAR_NAME" ]; then
+    # Check project root for JAR
+    JAR_PATH="$PROJECT_ROOT/$JAR_NAME"
+    echo "Found JAR in project root directory"
+elif [ -n "$PROJECT_ROOT" ] && [ -f "$PROJECT_ROOT/target/$JAR_NAME" ]; then
+    # Check project target directory for JAR
+    JAR_PATH="$PROJECT_ROOT/target/$JAR_NAME"
+    echo "Found JAR in project target directory"
+fi
 
-# 创建启动脚本到bin目录，指向子目录中的JAR文件
-echo "Creating launcher in ~/bin..."
-cat > ~/bin/cloc << EOF
+# If JAR not found, exit
+if [ -z "$JAR_PATH" ]; then
+    echo "ERROR: JAR file not found"
+    echo "Searched locations:"
+    echo "- $SCRIPT_DIR/$JAR_NAME"
+    echo "- $PWD/$JAR_NAME"
+    if [ -n "$PROJECT_ROOT" ]; then
+        echo "- $PROJECT_ROOT/$JAR_NAME"
+        echo "- $PROJECT_ROOT/target/$JAR_NAME"
+    fi
+    echo
+    echo "Please ensure the JAR file exists or build the project first."
+    exit 1
+fi
+
+# Copy JAR to installation directory
+echo "Copying JAR from: $JAR_PATH"
+cp "$JAR_PATH" "$TOOL_DIR/"
+if [ $? -ne 0 ]; then
+    echo "ERROR: Failed to copy JAR file"
+    exit 1
+fi
+
+# Create launcher script
+echo "Creating launcher script..."
+cat > "$BIN_DIR/cloc" << EOF
 #!/bin/bash
-java -jar "\$HOME/bin/cloc-like-tool/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar" "\$@"
+java -jar "$TOOL_DIR/$JAR_NAME" "\$@"
 EOF
-chmod +x ~/bin/cloc
+chmod +x "$BIN_DIR/cloc"
 
-# 添加到PATH（如果尚未添加）
-if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
-    if [ -f ~/.bashrc ]; then
-        echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
-        echo "Added to .bashrc"
-    fi
-    
-    if [ -f ~/.zshrc ]; then
-        echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
-        echo "Added to .zshrc"
-    fi
-    
-    echo "Please run 'source ~/.bashrc' or reopen terminal to update PATH"
+# Add to PATH if needed
+if [[ ":$PATH:" != *":$BIN_DIR:"* ]]; then
+    echo "Adding to PATH..."
+    for rcfile in "$HOME/.bashrc" "$HOME/.zshrc" "$HOME/.bash_profile"; do
+        if [ -f "$rcfile" ]; then
+            if ! grep -q "export PATH=\"\$HOME/bin:\$PATH\"" "$rcfile"; then
+                echo 'export PATH="$HOME/bin:$PATH"' >> "$rcfile"
+                echo "Updated $rcfile"
+            fi
+        fi
+    done
 else
-    echo "~/bin directory is already in PATH"
+    echo "$BIN_DIR is already in PATH"
 fi
 
 echo
-echo "======================================================"
 echo "Installation complete!"
-echo "======================================================"
-echo
-echo "IMPORTANT: You need to restart your terminal or run:"
-echo "  source ~/.bashrc"
-echo "for the PATH changes to take effect."
-echo 
+echo "You may need to restart your terminal or run: source ~/.bashrc"
+echo "After that, you can run: cloc -l c++ your_source_directory"

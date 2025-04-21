@@ -1,4 +1,4 @@
-package com.clocliketool.analyzer;
+package com.clocliketool.util;
 
 import java.io.File;
 import java.util.HashMap;

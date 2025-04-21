@@ -1,12 +1,12 @@
 package com.clocliketool;
 
 import com.clocliketool.analyzer.FileAnalyzer;
+import com.clocliketool.cli.CliTableFormatter;
 import com.clocliketool.cli.CommandLineProcessor;
 import com.clocliketool.counter.LineCounter;
 import com.clocliketool.exception.ErrorCode;
 import com.clocliketool.exception.ExceptionHandler;
 import com.clocliketool.model.LineCountResult;
-import com.clocliketool.util.ResultFormatter;
 
 import java.util.Map;
 
@@ -73,7 +73,7 @@ public class Main {
                 Map<String, LineCountResult> languageResults = analyzer.getLanguageResults();
                 
                 // 打印结果
-                String formattedResults = ResultFormatter.formatResults(languageResults);
+                String formattedResults = CliTableFormatter.formatResults(languageResults);
                 System.out.println(formattedResults);
             } else {
                 System.out.println("未找到匹配的文件。");

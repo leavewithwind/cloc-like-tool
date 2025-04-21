@@ -5,6 +5,7 @@ import com.clocliketool.exception.FileProcessingException;
 import com.clocliketool.exception.InvalidArgumentException;
 import com.clocliketool.model.LineCountResult;
 import com.clocliketool.util.DirectoryScanner;
+import com.clocliketool.util.LanguageMapper;
 
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +17,7 @@ import java.util.*;
  */
 public class FileAnalyzer {
     
-    private final LineCounter counter; // 改为单个计数器
+    private final LineCounter counter; // 计数器
     private LineCountResult result = new LineCountResult(); // 直接使用一个结果对象
     private String languageName; // 存储语言名称
     

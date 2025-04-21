@@ -1,16 +1,16 @@
-package com.clocliketool.util;
+package com.clocliketool.cli;
 
 import com.clocliketool.model.LineCountResult;
 
 import java.util.Map;
 
 /**
- * 输出格式化工具，格式化统计结果的输出
+ * 命令行表格格式化工具，将统计结果格式化为终端友好的表格输出
  */
-public class ResultFormatter {
+public class CliTableFormatter {
     
     /**
-     * 生成规范的表格样式的统计结果
+     * 生成规范的表格样式的统计结果，适合在终端中显示
      * 
      * @param languageResults 按语言分类的统计结果
      * @return 格式化后的结果字符串
@@ -47,4 +47,4 @@ public class ResultFormatter {
         
         return sb.toString();
     }
-}
+} 
