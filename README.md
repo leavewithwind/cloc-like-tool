@@ -125,6 +125,7 @@ install-scripts/windows/uninstall.bat
 #### macOS/Linux
 
 ```bash
+chmod +x install-scripts/unix/uninstall.sh
 ./install-scripts/unix/uninstall.sh
 ```
 

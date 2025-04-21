@@ -65,6 +65,7 @@ cloc -l ruby /path/to/ruby/files
 #### 对于Unix/Linux/macOS系统：
 
 ```bash
+chmod +x install-scripts/unix/uninstall.sh
 ./install-scripts/unix/uninstall.sh
 ```
 
