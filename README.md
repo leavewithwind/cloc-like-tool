@@ -60,8 +60,22 @@ cloc-like-tool/
 │           └── testdata/                             # 测试数据文件
 │               ├── cpp/                              # C/C++测试文件
 │               └── ruby/                             # Ruby测试文件
+├── scripts/                                          # 脚本文件目录
+│   ├── unix/                                         # Unix/Linux/macOS脚本
+│   │   ├── cloc.sh                                   # 运行程序的脚本
+│   │   ├── install.sh                                # 安装程序的脚本
+│   │   └── uninstall.sh                              # 卸载程序的脚本
+│   ├── windows/                                      # Windows脚本
+│   │   ├── cloc.bat                                  # 运行程序的脚本
+│   │   ├── install.bat                               # 安装程序的脚本
+│   │   └── uninstall.bat                             # 卸载程序的脚本
+│   ├── test-ruby-count.sh                           # 测试Ruby计数的脚本
+│   └── README.md                                     # 脚本目录说明文档
 ├── target/                                           # 编译输出目录（自动生成）
+├── cloc.sh                                           # 根目录运行脚本（转发到scripts/unix）
+├── cloc.bat                                          # 根目录运行脚本（转发到scripts/windows）
 ├── pom.xml                                           # Maven配置文件
+├── release.xml                                       # 发布包配置文件
 └── README.md                                         # 项目说明文档
 ```
 
@@ -181,7 +195,7 @@ java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l c++ /path/to/
 #### Windows安装
 
 1. 解压下载的`cloc-like-tool-1.0-SNAPSHOT-release.zip`
-2. 双击运行 `install-windows.bat`
+2. 双击运行 `scripts/windows/install.bat`
 3. 脚本会自动:
    - 在`%USERPROFILE%\bin`目录中创建`cloc-like-tool`子目录
    - 将JAR文件复制到该子目录
@@ -196,8 +210,8 @@ java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l c++ /path/to/
 2. 打开终端，导航到解压目录
 3. 执行以下命令:
    ```bash
-   chmod +x install-unix.sh
-   ./install-unix.sh
+   chmod +x scripts/unix/install.sh
+   ./scripts/unix/install.sh
    ```
 4. 脚本会自动:
    - 在`~/bin`目录中创建`cloc-like-tool`子目录
@@ -284,10 +298,10 @@ cloc -l ruby /path/to/source/code
 #### 卸载命令
 ```bash
 # Windows
-uninstall-windows.bat
+scripts/windows/uninstall.bat
 
 # macOS/Linux
-./uninstall-unix.sh
+./scripts/unix/uninstall.sh
 ```
 
 ### 环境变量过长问题解决方案

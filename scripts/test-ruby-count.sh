@@ -1,20 +1,25 @@
 #!/bin/bash
 
-mkdir -p test/resources 2>/dev/null
+# 获取脚本目录和项目根目录
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+ROOT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+
+mkdir -p "$ROOT_DIR/test/resources" 2>/dev/null
 
 # 确保源代码编译好
 echo "编译项目..."
+cd "$ROOT_DIR"
 mvn clean package -DskipTests
 
 # 测试新创建的Ruby测试文件
-TEST_FILE="test/resources/ruby-test-cases.rb"
+TEST_FILE="$ROOT_DIR/test/resources/ruby-test-cases.rb"
 
 echo "--------------------------------------------------"
 echo "测试文件: $TEST_FILE"
 echo "--------------------------------------------------"
 
 echo "使用我的工具统计:"
-java -jar target/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar "$TEST_FILE"
+java -jar "$ROOT_DIR/target/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar" "$TEST_FILE"
 
 echo "--------------------------------------------------"
 echo "使用cloc工具统计:"
@@ -23,7 +28,7 @@ cloc "$TEST_FILE"
 echo "--------------------------------------------------"
 echo "对比总结:"
 echo "--------------------------------------------------"
-OUR_RESULT=$(java -jar target/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar "$TEST_FILE" | grep "Ruby" | awk '{print $2, $3, $4, $5}')
+OUR_RESULT=$(java -jar "$ROOT_DIR/target/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar" "$TEST_FILE" | grep "Ruby" | awk '{print $2, $3, $4, $5}')
 CLOC_RESULT=$(cloc "$TEST_FILE" | grep "Ruby" | awk '{print $2, $3, $4, $5}')
 
 echo "我程序的结果 (文件数 空行数 注释行数 代码行数): $OUR_RESULT"

@@ -1,13 +1,17 @@
 @echo off
 echo Installing cloc tool...
 
+:: 获取脚本目录和项目根目录
+set SCRIPT_DIR=%~dp0
+set ROOT_DIR=%SCRIPT_DIR%..\..
+
 :: 创建用户bin目录和程序专用子目录（如果不存在）
 if not exist "%USERPROFILE%\bin" mkdir "%USERPROFILE%\bin"
 if not exist "%USERPROFILE%\bin\cloc-like-tool" mkdir "%USERPROFILE%\bin\cloc-like-tool"
 
 :: 复制脚本和JAR文件到专用目录
 echo Copying files to %USERPROFILE%\bin\cloc-like-tool...
-copy "%~dp0cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar" "%USERPROFILE%\bin\cloc-like-tool\"
+copy "%ROOT_DIR%\target\cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar" "%USERPROFILE%\bin\cloc-like-tool\"
 
 :: 创建启动脚本到bin目录，指向子目录中的JAR文件
 echo Creating launcher in %USERPROFILE%\bin...
