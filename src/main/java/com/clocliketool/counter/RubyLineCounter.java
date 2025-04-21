@@ -1,5 +1,7 @@
 package com.clocliketool.counter;
 
+import com.clocliketool.config.AppConfig;
+import com.clocliketool.config.ConfigKeys;
 import com.clocliketool.model.LineCountResult;
 
 import java.io.BufferedReader;
@@ -8,61 +10,65 @@ import java.io.FileReader;
 import java.io.IOException;
 
 /**
- * Ruby代码行计数器实现
- * 处理.rb文件的代码行统计
+ * Ruby 代码行计数器实现类
  */
 public class RubyLineCounter extends LineCounter {
     
-    private static final String[] SUPPORTED_EXTENSIONS = {"rb"};
+    private static final String[] SUPPORTED_EXTENSIONS = 
+            AppConfig.getStringArray(ConfigKeys.EXTENSION_RUBY, ",");
     
+    private boolean inMultilineComment = false;
+    
+    /**
+     * 计算Ruby文件的代码行、注释行和空行
+     * 
+     * @param file 要统计的文件
+     * @return LineCountResult对象，包含统计结果
+     * @throws IOException 如果文件读取失败
+     */
     @Override
     public LineCountResult countLines(File file) throws IOException {
         LineCountResult result = new LineCountResult();
         
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String line;
-            boolean inMultiLineComment = false;
             
             while ((line = reader.readLine()) != null) {
                 String trimmedLine = line.trim();
                 
-                // 空行检测
                 if (trimmedLine.isEmpty()) {
                     result.addBlankLine();
                     continue;
                 }
                 
-                // 处理=begin到=end的多行注释
-                if (inMultiLineComment) {
+                // 检查多行注释结束标记
+                if (inMultilineComment) {
                     result.addCommentLine();
-                    if (trimmedLine.equals("=end")) {
-                        inMultiLineComment = false;
+                    if (trimmedLine.equals(AppConfig.getString(ConfigKeys.RUBY_MULTILINE_END))) {
+                        inMultilineComment = false;
                     }
                     continue;
                 }
                 
-                // 检查是否开始多行注释
-                if (trimmedLine.equals("=begin")) {
+                // 检查多行注释开始标记
+                if (trimmedLine.equals(AppConfig.getString(ConfigKeys.RUBY_MULTILINE_START))) {
                     result.addCommentLine();
-                    inMultiLineComment = true;
+                    inMultilineComment = true;
                     continue;
                 }
                 
-                // 检查是否是单行注释 #
-                int hashIndex = findUnquotedIndex(line, "#");
+                // 检查单行注释
+                int hashIndex = findUnquotedIndex(line, AppConfig.getString(ConfigKeys.RUBY_COMMENT_CHAR));
                 if (hashIndex == 0) {
+                    // 行首为 #，整行是注释
                     result.addCommentLine();
-                    continue;
+                } else if (hashIndex > 0) {
+                    // 行中有 # 但不在行首，有代码也有注释
+                    result.addCodeLine();
+                } else {
+                    // 没有注释符号，整行是代码
+                    result.addCodeLine();
                 }
-                
-                // 行内包含注释和代码的情况
-                if (hashIndex > 0) {
-                    result.addCodeLine(); // Ruby中，行内包含代码和注释，优先计为代码行
-                    continue;
-                }
-                
-                // 其他情况算作代码行
-                result.addCodeLine();
             }
         }
         
@@ -77,47 +83,40 @@ public class RubyLineCounter extends LineCounter {
     }
     
     /**
-     * 检查指定位置的字符是否在引号外
+     * 查找非引号内的第一个指定字符的位置
+     * 
+     * @param line 要搜索的行
+     * @param target 目标字符
+     * @return 如果找到则返回索引，否则返回-1
      */
-    private boolean isUnquoted(String line, int index) {
+    private int findUnquotedIndex(String line, String target) {
         boolean inSingleQuote = false;
         boolean inDoubleQuote = false;
         boolean escaped = false;
         
-        for (int i = 0; i < index; i++) {
-            char c = line.charAt(i);
+        for (int i = 0; i < line.length(); i++) {
+            char current = line.charAt(i);
             
             if (escaped) {
                 escaped = false;
                 continue;
             }
             
-            if (c == '\\') {
+            if (current == '\\') {
                 escaped = true;
                 continue;
             }
             
-            if (c == '"' && !inSingleQuote) {
+            if (current == '"' && !inSingleQuote) {
                 inDoubleQuote = !inDoubleQuote;
-            } else if (c == '\'' && !inDoubleQuote) {
+            } else if (current == '\'' && !inDoubleQuote) {
                 inSingleQuote = !inSingleQuote;
+            } else if (!inSingleQuote && !inDoubleQuote && i + target.length() <= line.length() 
+                    && line.substring(i, i + target.length()).equals(target)) {
+                return i;
             }
         }
         
-        return !inSingleQuote && !inDoubleQuote;
-    }
-    
-    /**
-     * 找到不在引号内的子字符串位置
-     */
-    private int findUnquotedIndex(String line, String substring) {
-        int index = line.indexOf(substring);
-        while (index >= 0) {
-            if (isUnquoted(line, index)) {
-                return index;
-            }
-            index = line.indexOf(substring, index + 1);
-        }
         return -1;
     }
 }

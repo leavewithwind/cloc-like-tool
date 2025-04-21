@@ -1,5 +1,7 @@
 package com.clocliketool.analyzer;
 
+import com.clocliketool.config.AppConfig;
+import com.clocliketool.config.ConfigKeys;
 import com.clocliketool.counter.LineCounter;
 import com.clocliketool.exception.FileProcessingException;
 import com.clocliketool.exception.InvalidArgumentException;
@@ -61,67 +63,84 @@ public class FileAnalyzer {
             throw new InvalidArgumentException("pathsToAnalyze", "未指定要分析的路径");
         }
         
+        boolean hasResults = false;
+        
         for (String path : pathsToAnalyze) {
             File file = new File(path);
             if (!file.exists()) {
-                System.err.println("警告: 路径不存在: " + path);
+                System.err.println(AppConfig.formatMessage(ConfigKeys.ERROR_PATH_NONEXISTENT, path));
                 continue;
             }
             
-            if (file.isFile()) {
-                processFile(file);
-            } else if (file.isDirectory()) {
-                processDirectory(file);
-            }
+            hasResults |= analyzeFile(file);
         }
         
-        return totalFiles > 0;
+        return hasResults;
     }
     
     /**
-     * 处理单个文件
+     * 分析单个文件或目录
      * 
-     * @param file 要处理的文件
-     * @throws FileProcessingException 如果文件处理失败
+     * @param file 要分析的文件或目录
+     * @return 是否找到匹配的文件
      */
-    private void processFile(File file) {
-        if (counter.supportsFile(file)) {
+    private boolean analyzeFile(File file) {
+        if (file.isFile()) {
+            if (counter.supportsFile(file)) {
+                try {
+                    LineCountResult fileResult = counter.countLines(file);
+                    result.merge(fileResult);
+                    totalFiles++;
+                    return true;
+                } catch (IOException e) {
+                    throw new FileProcessingException(file, e);
+                }
+            }
+            return false;
+        } else if (file.isDirectory()) {
+            return analyzeDirectory(file);
+        }
+        return false;
+    }
+    
+    /**
+     * 分析目录
+     * 
+     * @param directory 要分析的目录
+     * @return 是否找到匹配的文件
+     */
+    private boolean analyzeDirectory(File directory) {
+        List<File> matchedFiles = DirectoryScanner.scanDirectory(directory, counter.getSupportedExtensions());
+        
+        if (matchedFiles.isEmpty()) {
+            return false;
+        }
+        
+        boolean hasResults = false;
+        
+        for (File file : matchedFiles) {
             try {
                 LineCountResult fileResult = counter.countLines(file);
-                result.merge(fileResult); // 合并结果
+                result.merge(fileResult);
                 totalFiles++;
+                hasResults = true;
             } catch (IOException e) {
                 throw new FileProcessingException(file, e);
             }
         }
+        
+        return hasResults;
     }
     
     /**
-     * 处理目录
-     */
-    private void processDirectory(File directory) {
-        // 获取当前计数器支持的扩展名
-        String[] extensions = counter.getSupportedExtensions();
-        
-        // 扫描目录
-        List<File> matchedFiles = DirectoryScanner.scanDirectory(
-                directory, extensions);
-        
-        // 处理找到的文件
-        for (File matchedFile : matchedFiles) {
-            processFile(matchedFile);
-        }
-    }
-    
-    /**
-     * 获取分析结果
+     * 获取按语言分类的统计结果
      * 
-     * @return 按语言分类的统计结果
+     * @return 包含每种语言统计结果的映射
      */
     public Map<String, LineCountResult> getLanguageResults() {
         Map<String, LineCountResult> results = new HashMap<>();
         results.put(languageName, result);
-        return Collections.unmodifiableMap(results);
+        return results;
     }
     
     /**
@@ -132,5 +151,4 @@ public class FileAnalyzer {
     public int getTotalFiles() {
         return totalFiles;
     }
-    
 }
