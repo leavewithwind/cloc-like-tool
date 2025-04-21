@@ -8,7 +8,6 @@ import com.clocliketool.exception.ExceptionHandler;
 import com.clocliketool.model.LineCountResult;
 import com.clocliketool.util.ResultFormatter;
 
-import java.util.List;
 import java.util.Map;
 
 /**

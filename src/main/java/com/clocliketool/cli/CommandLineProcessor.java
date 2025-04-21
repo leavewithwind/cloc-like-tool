@@ -5,8 +5,6 @@ import com.clocliketool.counter.LineCounterFactory;
 import com.clocliketool.exception.UnsupportedLanguageException;
 import org.apache.commons.cli.*;
 
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * 命令行处理类，负责解析命令行参数
