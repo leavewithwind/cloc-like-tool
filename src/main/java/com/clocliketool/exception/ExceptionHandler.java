@@ -1,8 +1,5 @@
 package com.clocliketool.exception;
 
-import com.clocliketool.config.AppConfig;
-import com.clocliketool.config.ConfigKeys;
-
 /**
  * 异常处理工具类
  * 提供统一的异常处理功能
@@ -37,11 +34,11 @@ public class ExceptionHandler {
         ErrorCode errorCode = getErrorCode(e);
         
         // 打印错误信息
-        System.err.println(AppConfig.formatMessage(ConfigKeys.ERROR_GENERAL, e.getMessage()));
+        System.err.println("错误: " + e.getMessage());
         
         // 对于文件处理异常，显示更多信息
         if (e instanceof FileProcessingException && e.getCause() != null) {
-            System.err.println(AppConfig.formatMessage(ConfigKeys.ERROR_CAUSE, e.getCause().getMessage()));
+            System.err.println("原因: " + e.getCause().getMessage());
         }
         
         // 对于未知异常，打印堆栈跟踪

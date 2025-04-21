@@ -1,11 +1,8 @@
 package com.clocliketool.exception;
 
-import com.clocliketool.config.AppConfig;
-import com.clocliketool.config.ConfigKeys;
-
 /**
  * 无效参数异常
- * 当命令行参数无效时抛出
+ * 当提供的参数不符合要求时抛出
  */
 public class InvalidArgumentException extends LineCounterException {
     
@@ -25,6 +22,6 @@ public class InvalidArgumentException extends LineCounterException {
      * @param reason 无效原因
      */
     public InvalidArgumentException(String paramName, String reason) {
-        super(AppConfig.formatMessage(ConfigKeys.ERROR_INVALID_ARGUMENT, paramName, reason));
+        super("无效的参数 '" + paramName + "': " + reason);
     }
 } 

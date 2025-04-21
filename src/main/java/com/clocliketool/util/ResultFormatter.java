@@ -1,7 +1,5 @@
 package com.clocliketool.util;
 
-import com.clocliketool.config.AppConfig;
-import com.clocliketool.config.ConfigKeys;
 import com.clocliketool.model.LineCountResult;
 
 import java.util.Map;
@@ -26,30 +24,19 @@ public class ResultFormatter {
         // 获取结果对象
         LineCountResult result = languageResults.values().iterator().next();
         
-        // 从配置中获取分隔线
-        String separatorLine = AppConfig.getString(ConfigKeys.OUTPUT_SEPARATOR_LINE);
-        sb.append(separatorLine).append("\n");
+        // 分隔线
+        sb.append("-----------------------------------------------------------\n");
         
-        // 表头 - 从配置中获取格式和列名
-        String headerFormat = AppConfig.getString(ConfigKeys.OUTPUT_FORMAT_HEADER);
-        String filesColumn = AppConfig.getString(ConfigKeys.OUTPUT_COLUMN_FILES);
-        String linesColumn = AppConfig.getString(ConfigKeys.OUTPUT_COLUMN_LINES);
-        String codeColumn = AppConfig.getString(ConfigKeys.OUTPUT_COLUMN_CODE);
-        String commentsColumn = AppConfig.getString(ConfigKeys.OUTPUT_COLUMN_COMMENTS);
-        String blanksColumn = AppConfig.getString(ConfigKeys.OUTPUT_COLUMN_BLANKS);
-        
-        // 格式化表头
-        sb.append(String.format(headerFormat + "\n",
-                filesColumn, linesColumn, codeColumn, commentsColumn, blanksColumn));
+        // 表头 - 右对齐 (默认正数右对齐)
+        // 使用String.format格式化字符串，指定宽度，确保输出的表格列对齐
+        sb.append(String.format("%6s %12s %12s %12s %12s\n",
+                "Files", "Lines", "Code", "Comments", "Blanks"));
         
         // 分隔线
-        sb.append(separatorLine).append("\n");
+        sb.append("-----------------------------------------------------------\n");
         
-        // 从配置中获取数据行格式
-        String dataFormat = AppConfig.getString(ConfigKeys.OUTPUT_FORMAT_DATA);
-        
-        // 输出统计结果
-        sb.append(String.format(dataFormat + "\n",
+        // 输出统计结果 - 右对齐
+        sb.append(String.format("%6d %12d %12d %12d %12d\n",
                 totalFiles,
                 result.getTotalLines(),
                 result.getCodeLines(),
@@ -57,7 +44,7 @@ public class ResultFormatter {
                 result.getBlankLines()));
         
         // 分隔线
-        sb.append(separatorLine).append("\n");
+        sb.append("-----------------------------------------------------------\n");
         
         return sb.toString();
     }
