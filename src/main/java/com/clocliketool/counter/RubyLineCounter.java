@@ -10,10 +10,11 @@ import java.io.IOException;
 /**
  * Ruby代码行计数器实现
  * 处理.rb文件的代码行统计
+ * 基于cloc工具的处理逻辑重写
  */
 public class RubyLineCounter extends LineCounter {
     
-    private static final String[] SUPPORTED_EXTENSIONS = {"rb"};
+    private static final String[] SUPPORTED_EXTENSIONS = {"rb", "rake", "gemspec", "rbw", "rbx", "rjs", "rabl", "ru", "thor", "podspec", "rxml"};
     
     @Override
     public LineCountResult countLines(File file) throws IOException {
