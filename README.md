@@ -75,7 +75,6 @@ cloc-like-tool/
 ├── cloc.sh                                           # 根目录运行脚本（转发到scripts/unix）
 ├── cloc.bat                                          # 根目录运行脚本（转发到scripts/windows）
 ├── pom.xml                                           # Maven配置文件
-├── release.xml                                       # 发布包配置文件
 └── README.md                                         # 项目说明文档
 ```
 
@@ -161,9 +160,8 @@ cd cloc-like-tool
 mvn clean package
 ```
 
-构建完成后，可在`target`目录中找到两种类型的文件：
-- 可执行JAR文件：`cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar`
-- 发布包：`cloc-like-tool-1.0-SNAPSHOT-release.zip`（Windows用）和`cloc-like-tool-1.0-SNAPSHOT-release.tar.gz`（Unix/Linux/macOS用）
+构建完成后，可在`target`目录中找到可执行JAR文件：
+- `cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar`
 
 ### 使用JAR文件直接运行
 
@@ -190,12 +188,12 @@ java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l c++ /path/to/
 
 ### 简化命令执行（使用"cloc"命令）
 
-为了使用更简便的`cloc`命令，您可以安装发布包。
+为了使用更简便的`cloc`命令，您可以使用安装脚本进行安装。
 
 #### Windows安装
 
-1. 解压下载的`cloc-like-tool-1.0-SNAPSHOT-release.zip`
-2. 双击运行 `scripts/windows/install.bat`
+1. 将JAR文件和安装脚本放在同一目录
+2. 运行 `scripts/windows/install.bat`
 3. 脚本会自动:
    - 在`%USERPROFILE%\bin`目录中创建`cloc-like-tool`子目录
    - 将JAR文件复制到该子目录
@@ -206,77 +204,12 @@ java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l c++ /path/to/
 
 #### macOS/Linux安装
 
-1. 解压下载的`cloc-like-tool-1.0-SNAPSHOT-release.tar.gz`
-2. 打开终端，导航到解压目录
+1. 将JAR文件和安装脚本放在同一目录
+2. 打开终端，导航到该目录
 3. 执行以下命令:
    ```bash
    chmod +x scripts/unix/install.sh
    ./scripts/unix/install.sh
-   ```
-4. 脚本会自动:
-   - 在`~/bin`目录中创建`cloc-like-tool`子目录
-   - 将JAR文件复制到该子目录
-   - 创建启动脚本`cloc`到`~/bin`目录
-   - 将`~/bin`添加到系统PATH环境变量
-5. 重新打开终端或执行 `source ~/.bashrc` 更新环境变量
-6. 输入 `cloc` 测试安装是否成功
-
-#### 安装后的使用方法
-
-安装完成后，您可以使用以下简化命令运行CLOC工具:
-
-```bash
-# 统计C/C++代码
-cloc -l c++ /path/to/source/code
-
-# 统计Ruby代码
-cloc -l ruby /path/to/source/code
-```
-
-#### 手动安装（如果自动脚本不工作）
-
-##### Windows手动安装
-
-1. 创建目录结构:
-   ```cmd
-   mkdir "%USERPROFILE%\bin"
-   mkdir "%USERPROFILE%\bin\cloc-like-tool"
-   ```
-
-2. 复制文件:
-   - 将JAR文件复制到`%USERPROFILE%\bin\cloc-like-tool`目录
-   - 创建批处理文件`%USERPROFILE%\bin\cloc.bat`，内容为:
-     ```
-     @echo off
-     java -jar "%USERPROFILE%\bin\cloc-like-tool\cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar" %*
-     ```
-
-3. 将目录添加到系统PATH环境变量:
-   - 右键点击「此电脑」-> 属性 -> 高级系统设置 -> 环境变量
-   - 找到「Path」变量，点击编辑，添加`%USERPROFILE%\bin`
-   - 点击确定保存更改
-
-##### macOS/Linux手动安装
-
-1. 创建目录结构:
-   ```bash
-   mkdir -p ~/bin/cloc-like-tool
-   ```
-
-2. 复制文件:
-   ```bash
-   cp cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar ~/bin/cloc-like-tool/
-   cat > ~/bin/cloc << 'EOF'
-   #!/bin/bash
-   java -jar "$HOME/bin/cloc-like-tool/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar" "$@"
-   EOF
-   chmod +x ~/bin/cloc
-   ```
-
-3. 添加到PATH:
-   ```bash
-   echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
-   source ~/.bashrc
    ```
 
 ### 卸载工具
