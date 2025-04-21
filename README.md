@@ -4,7 +4,7 @@
 
 ## 功能特性
 
-- 支持C/C++文件（.c, .cpp, .cc, .h, .hpp）的代码行统计
+- 支持C/C++文件（.c, .cpp, .cc）的代码行统计
 - 支持Ruby文件（.rb）的代码行统计
 - 递归遍历目录
 - 正确处理注释和代码混合的行
@@ -36,7 +36,7 @@ cloc-like-tool/
 │   │   │           │   └── LineCountResult.java       # 计数结果模型
 │   │   │           ├── counter/                       # 计数器模块
 │   │   │           │   ├── LineCounter.java           # 抽象基础计数器类
-│   │   │           │   ├── CppLineCounter.java        # C/C++实现
+│   │   │           │   ├── CLineCounter.java         # C/C++实现
 │   │   │           │   ├── RubyLineCounter.java       # Ruby实现
 │   │   │           │   └── LineCounterFactory.java    # 计数器工厂
 │   │   │           ├── analyzer/                      # 分析器模块
@@ -151,7 +151,7 @@ java -jar target/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar [选项] 
 ### 选项
 
 - `-h`, `--help`: 显示帮助信息
-- `-l`, `--language <语言>`: 指定要统计的语言（支持: c/c++, ruby）
+- `-l`, `--language <语言>`: 指定要统计的语言（支持: c++, ruby）
 
 ### 示例
 
@@ -160,13 +160,13 @@ java -jar target/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar [选项] 
 java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -h
 
 # 统计指定目录中的C/C++文件
-java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l c/c++ /path/to/cpp/project
+java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l c++ /path/to/cpp/project
 
 # 统计指定目录中的Ruby文件
 java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l ruby /path/to/ruby/project
 
 # 统计多个目录
-java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l c/c++ /path/to/dir1 /path/to/dir2
+java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l c++ /path/to/dir1 /path/to/dir2
 ```
 
 ## 输出格式

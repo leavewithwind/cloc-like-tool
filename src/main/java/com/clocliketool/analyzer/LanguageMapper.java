@@ -12,10 +12,10 @@ public class LanguageMapper {
     private static final Map<String, String> extensionLanguageMap = new HashMap<>();
     
     static {
-        // C/C++统一归为一类
-        extensionLanguageMap.put("c", "C/C++");
-        extensionLanguageMap.put("cpp", "C/C++");
-        extensionLanguageMap.put("cc", "C/C++");
+        // C/C++统一归为C类
+        extensionLanguageMap.put("c", "C");
+        extensionLanguageMap.put("cpp", "C");
+        extensionLanguageMap.put("cc", "C");
         
         // Ruby
         extensionLanguageMap.put("rb", "Ruby");

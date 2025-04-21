@@ -1,5 +1,6 @@
 package com.clocliketool.exception;
 
+import com.clocliketool.cli.CommandLineProcessor;
 import java.util.List;
 
 /**
@@ -18,7 +19,9 @@ public class UnsupportedLanguageException extends LineCounterException {
      * @param supportedLanguages 程序支持的语言列表
      */
     public UnsupportedLanguageException(String language, List<String> supportedLanguages) {
-        super("不支持的语言: " + language + ", 支持的语言包括: " + supportedLanguages);
+        super("不支持的语言: " + language + 
+              "\n请使用受支持的语言: " + supportedLanguages + 
+              "\n\n" + CommandLineProcessor.getLanguageSupportInfo());
         this.language = language;
         this.supportedLanguages = supportedLanguages;
     }

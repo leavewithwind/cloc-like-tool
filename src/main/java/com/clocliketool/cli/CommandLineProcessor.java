@@ -35,22 +35,35 @@ public class CommandLineProcessor {
             
             // 检查语言选项是否存在
             if (!cmd.hasOption("l")) {
-                System.err.println("错误: 必须使用 -l 或 --language 选项指定要统计的语言");
+                System.err.println("错误: 必须使用 -l 选项指定要统计的语言");
                 return false;
             }
             
             return true;
         } catch (ParseException e) {
-            System.err.println("参数解析错误: " + e.getMessage());
+            // 将技术性错误转换为用户友好的消息
+            String errorMessage = "参数解析错误";
+            
+            // 根据不同类型的异常提供具体的错误信息
+            if (e instanceof MissingOptionException) {
+                errorMessage = "错误: 必须使用 -l 选项指定要统计的语言";
+            } else if (e instanceof MissingArgumentException) {
+                errorMessage = "错误: -l 选项后必须指定语言类型";
+            } else if (e instanceof UnrecognizedOptionException) {
+                errorMessage = "错误: 不支持的选项 " + e.getMessage().replaceAll(".*?: ", "");
+            }
+            
+            System.err.println(errorMessage);
             return false;
         }
     }
     
     /**
      * 检查是否需要显示帮助信息
+     * 现在只有在完全没有参数时才显示帮助
      */
     public boolean shouldShowHelp() {
-        return cmd.hasOption("h") || args.length == 0;
+        return args.length == 0;
     }
     
     /**
@@ -75,7 +88,7 @@ public class CommandLineProcessor {
         if (counter != null) {
             selectedCounters.add(counter);
         } else {
-            // 抛出异常而不是仅返回空列表
+            // 抛出异常，避免在这里提示导致重复
             throw new UnsupportedLanguageException(langParam, LineCounterFactory.getSupportedLanguages());
         }
         
@@ -88,20 +101,14 @@ public class CommandLineProcessor {
     private Options createOptions() {
         Options options = new Options();
         
-        Option helpOpt = Option.builder("h")
-                .longOpt("help")
-                .desc("显示帮助信息")
-                .build();
-        
         Option langOpt = Option.builder("l")
                 .longOpt("language")
                 .hasArg()
                 .argName("语言")
-                .desc("指定要统计的语言 (支持: c/c++, ruby)")
+                .desc("指定要统计的语言 (支持: c++, ruby)")
                 .required(true)
                 .build();
         
-        options.addOption(helpOpt);
         options.addOption(langOpt);
         
         return options;
@@ -115,6 +122,18 @@ public class CommandLineProcessor {
         formatter.printHelp("cloc -l <language> <路径1> [<路径2> ...]", 
                 "代码行统计工具 - 统计指定语言源文件中的代码行、注释行和空行", 
                 options, 
-                "\n支持的语言: " + LineCounterFactory.getSupportedLanguages());
+                "\n支持的语言: " + LineCounterFactory.getSupportedLanguages() + 
+                "\n" + getLanguageSupportInfo());
+    }
+    
+    /**
+     * 获取语言支持信息的字符串
+     * 这个方法抽取出来是为了避免在多处重复定义相同的提示信息
+     * 
+     * @return 语言支持信息的字符串
+     */
+    public static String getLanguageSupportInfo() {
+        return "统计C/C++代码请使用: -l c++" +
+               "\n统计Ruby代码请使用: -l ruby";
     }
 }

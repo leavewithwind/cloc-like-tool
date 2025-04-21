@@ -28,19 +28,21 @@ public class ApplicationRunner {
      * @return 执行结果码，0表示成功，非0表示失败
      */
     public int run() {
+        // 完全没有参数时显示帮助菜单作为彩蛋
+        if (args.length == 0) {
+            CommandLineProcessor cmdProcessor = new CommandLineProcessor(args);
+            cmdProcessor.printHelp();
+            return ErrorCode.SUCCESS.getCode();
+        }
+        
         // 解析命令行参数
         CommandLineProcessor cmdProcessor = new CommandLineProcessor(args);
         
         try {
             if (!cmdProcessor.parseArguments()) {
+                // 直接显示帮助信息，不额外显示语言支持提示，避免重复
                 cmdProcessor.printHelp();
                 return ErrorCode.COMMAND_LINE_ERROR.getCode();
-            }
-            
-            // 检查是否需要显示帮助信息
-            if (cmdProcessor.shouldShowHelp()) {
-                cmdProcessor.printHelp();
-                return ErrorCode.SUCCESS.getCode();
             }
             
             // 获取要处理的路径

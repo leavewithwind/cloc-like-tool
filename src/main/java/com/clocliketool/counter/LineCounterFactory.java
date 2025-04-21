@@ -15,10 +15,8 @@ public class LineCounterFactory {
     
     static {
         // 注册所有支持的计数器
-        // C/C++统一注册
-        registerCounter("c/c++", CLineCounter.class);
-        registerCounter("cpp", CLineCounter.class);
-        registerCounter("c", CLineCounter.class);
+        // C/C++使用"c++"选项
+        registerCounter("c++", CLineCounter.class);
         registerCounter("ruby", RubyLineCounter.class);
     }
     
