@@ -1,30 +1,45 @@
 #!/bin/bash
-echo "正在安装cloc工具..."
+echo "Installing cloc tool..."
 
-# 创建用户bin目录（如果不存在）
-mkdir -p ~/bin
+# 创建用户bin目录和程序专用子目录（如果不存在）
+mkdir -p ~/bin/cloc-like-tool
 
-# 复制脚本和JAR文件
+# 复制JAR文件到专用目录
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-cp "$SCRIPT_DIR/cloc.sh" ~/bin/cloc
-cp "$SCRIPT_DIR/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar" ~/bin/
+echo "Copying files to ~/bin/cloc-like-tool..."
+cp "$SCRIPT_DIR/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar" ~/bin/cloc-like-tool/
+
+# 创建启动脚本到bin目录，指向子目录中的JAR文件
+echo "Creating launcher in ~/bin..."
+cat > ~/bin/cloc << EOF
+#!/bin/bash
+java -jar "\$HOME/bin/cloc-like-tool/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar" "\$@"
+EOF
 chmod +x ~/bin/cloc
 
 # 添加到PATH（如果尚未添加）
 if [[ ":$PATH:" != *":$HOME/bin:"* ]]; then
     if [ -f ~/.bashrc ]; then
         echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
-        echo "已添加到 .bashrc"
+        echo "Added to .bashrc"
     fi
     
     if [ -f ~/.zshrc ]; then
         echo 'export PATH="$HOME/bin:$PATH"' >> ~/.zshrc
-        echo "已添加到 .zshrc"
+        echo "Added to .zshrc"
     fi
     
-    echo "请运行 'source ~/.bashrc' 或重新打开终端以更新PATH"
+    echo "Please run 'source ~/.bashrc' or reopen terminal to update PATH"
 else
-    echo "~/bin 目录已在PATH中"
+    echo "~/bin directory is already in PATH"
 fi
 
-echo "安装完成！请重新打开终端或执行 'source ~/.bashrc'，然后使用'cloc'命令运行程序。" 
+echo
+echo "======================================================"
+echo "Installation complete!"
+echo "======================================================"
+echo
+echo "IMPORTANT: You need to restart your terminal or run:"
+echo "  source ~/.bashrc"
+echo "for the PATH changes to take effect."
+echo 

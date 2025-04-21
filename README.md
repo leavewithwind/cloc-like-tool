@@ -183,8 +183,10 @@ java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l c++ /path/to/
 1. 解压下载的`cloc-like-tool-1.0-SNAPSHOT-release.zip`
 2. 双击运行 `install-windows.bat`
 3. 脚本会自动:
-   - 将脚本和JAR文件复制到 `%USERPROFILE%\bin` 目录
-   - 将此目录添加到系统PATH环境变量
+   - 在`%USERPROFILE%\bin`目录中创建`cloc-like-tool`子目录
+   - 将JAR文件复制到该子目录
+   - 创建启动脚本`cloc.bat`到`%USERPROFILE%\bin`目录
+   - 将`%USERPROFILE%\bin`添加到系统PATH环境变量
 4. 重新打开命令提示符或PowerShell窗口
 5. 输入 `cloc` 测试安装是否成功
 
@@ -198,8 +200,10 @@ java -jar cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar -l c++ /path/to/
    ./install-unix.sh
    ```
 4. 脚本会自动:
-   - 将脚本和JAR文件复制到 `~/bin` 目录
-   - 将此目录添加到系统PATH环境变量
+   - 在`~/bin`目录中创建`cloc-like-tool`子目录
+   - 将JAR文件复制到该子目录
+   - 创建启动脚本`cloc`到`~/bin`目录
+   - 将`~/bin`添加到系统PATH环境变量
 5. 重新打开终端或执行 `source ~/.bashrc` 更新环境变量
 6. 输入 `cloc` 测试安装是否成功
 
@@ -219,26 +223,95 @@ cloc -l ruby /path/to/source/code
 
 ##### Windows手动安装
 
-1. 创建一个目录，例如 `C:\bin`
-2. 将 `cloc.bat` 和 JAR文件复制到此目录
-3. 将此目录添加到系统PATH环境变量:
+1. 创建目录结构:
+   ```cmd
+   mkdir "%USERPROFILE%\bin"
+   mkdir "%USERPROFILE%\bin\cloc-like-tool"
+   ```
+
+2. 复制文件:
+   - 将JAR文件复制到`%USERPROFILE%\bin\cloc-like-tool`目录
+   - 创建批处理文件`%USERPROFILE%\bin\cloc.bat`，内容为:
+     ```
+     @echo off
+     java -jar "%USERPROFILE%\bin\cloc-like-tool\cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar" %*
+     ```
+
+3. 将目录添加到系统PATH环境变量:
    - 右键点击「此电脑」-> 属性 -> 高级系统设置 -> 环境变量
-   - 找到「Path」变量，点击编辑，添加新目录
+   - 找到「Path」变量，点击编辑，添加`%USERPROFILE%\bin`
    - 点击确定保存更改
 
 ##### macOS/Linux手动安装
 
-1. 创建一个目录：`mkdir -p ~/bin`
-2. 复制文件：
+1. 创建目录结构:
    ```bash
-   cp cloc.sh ~/bin/cloc
-   cp cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar ~/bin/
+   mkdir -p ~/bin/cloc-like-tool
+   ```
+
+2. 复制文件:
+   ```bash
+   cp cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar ~/bin/cloc-like-tool/
+   cat > ~/bin/cloc << 'EOF'
+   #!/bin/bash
+   java -jar "$HOME/bin/cloc-like-tool/cloc-like-tool-1.0-SNAPSHOT-jar-with-dependencies.jar" "$@"
+   EOF
    chmod +x ~/bin/cloc
    ```
-3. 添加到PATH：
+
+3. 添加到PATH:
    ```bash
    echo 'export PATH="$HOME/bin:$PATH"' >> ~/.bashrc
    source ~/.bashrc
+   ```
+
+### 卸载工具
+
+卸载工具时，系统会进行以下操作：
+
+#### Windows卸载
+1. 删除`%USERPROFILE%\bin\cloc.bat`和`%USERPROFILE%\bin\cloc-like-tool`目录
+2. 检查`%USERPROFILE%\bin`目录中是否还有其他文件或目录
+   - 如果目录为空，则从PATH中移除`%USERPROFILE%\bin`并询问是否删除空目录
+   - 如果目录中还有其他文件或目录（可能是其他工具），则保留`%USERPROFILE%\bin`在PATH中
+
+#### macOS/Linux卸载
+1. 删除`~/bin/cloc`和`~/bin/cloc-like-tool`目录
+2. 检查`~/bin`目录中是否还有其他文件或目录
+   - 如果目录为空，则从`~/.bashrc`和`~/.zshrc`中移除PATH条目并询问是否删除空目录
+   - 如果目录中还有其他文件或目录（可能是其他工具），则保留`~/bin`在PATH中
+
+#### 卸载命令
+```bash
+# Windows
+uninstall-windows.bat
+
+# macOS/Linux
+./uninstall-unix.sh
+```
+
+### 环境变量过长问题解决方案
+
+在Windows系统中，环境变量有长度限制。在安装或卸载过程中，如果您遇到"环境变量过长"的错误提示，请使用以下PowerShell命令手动添加或移除PATH条目：
+
+#### 手动添加PATH（Windows安装）
+
+1. 按Win+X，选择"Windows PowerShell"或"PowerShell"
+2. 运行以下命令：
+   ```powershell
+   $currentPath = [Environment]::GetEnvironmentVariable('PATH', 'User')
+   $newPath = "$env:USERPROFILE\bin;" + $currentPath
+   [Environment]::SetEnvironmentVariable('PATH', $newPath, 'User')
+   ```
+
+#### 手动移除PATH（Windows卸载）
+
+1. 按Win+X，选择"Windows PowerShell"或"PowerShell"
+2. 运行以下命令：
+   ```powershell
+   $currentPath = [Environment]::GetEnvironmentVariable('PATH', 'User')
+   $newPath = ($currentPath -split ';' | Where-Object { $_ -ne "$env:USERPROFILE\bin" }) -join ';'
+   [Environment]::SetEnvironmentVariable('PATH', $newPath, 'User')
    ```
 
 ## 输出格式
